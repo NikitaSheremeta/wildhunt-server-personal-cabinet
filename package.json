@@ -1,0 +1,53 @@
+{
+  "name": "minecraft",
+  "version": "1.0.0",
+  "description": "Back-end side",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "npm run watch-node",
+    "watch-node": "nodemon ./src/server.ts"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged --relative"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
+  "browserslist": [
+    "> 0.25%",
+    "last 2 versions",
+    "not dead",
+    "not op_mini all"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NikitaSheremeta/minecraft.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NikitaSheremeta/minecraft/issues"
+  },
+  "homepage": "https://github.com/NikitaSheremeta/minecraft#readme",
+  "dependencies": {
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "mysql": "^2.18.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.16.0",
+    "@babel/core": "^7.16.0",
+    "@babel/node": "^7.16.0",
+    "@babel/preset-env": "^7.16.0",
+    "eslint": "^8.2.0",
+    "husky": "^7.0.4",
+    "lint-staged": "^11.2.6",
+    "nodemon": "^2.0.15",
+    "prettier": "^2.4.1"
+  }
+}
