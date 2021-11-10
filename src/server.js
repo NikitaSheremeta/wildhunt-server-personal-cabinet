@@ -3,6 +3,8 @@ const express = require('express');
 const mysql = require('mysql');
 const cluster = require('cluster');
 const os = require('os');
+const cookieParser = require('cookie-parser');
+const cors = require('cors');
 const routes = require('./routes/index');
 
 dotenv.config();
@@ -19,9 +21,12 @@ const db = mysql.createConnection({
 const serverPort = process.env.SERVER_PORT;
 const oneCpu = 1;
 
-const start = function startServer() {
-  app.use('/', routes);
+app.use(express.json());
+app.use(cookieParser());
+app.use(cors());
+app.use('/api', routes);
 
+const start = async function startServer() {
   if (cluster.isMaster) {
     const cpusCount = os.cpus().length;
 
@@ -35,7 +40,7 @@ const start = function startServer() {
       });
     }
   } else {
-    db.connect((err) =>
+    await db.connect((err) =>
       err ? console.error(err.message) : console.log('MySQL connected...')
     );
 
