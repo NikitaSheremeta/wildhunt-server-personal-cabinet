@@ -2,11 +2,11 @@
   "name": "minecraft",
   "version": "1.0.0",
   "description": "Back-end side",
-  "main": "src/index.js",
+  "main": "src/server.js",
   "scripts": {
     "start": "npm run watch-node",
     "prepare": "husky install",
-    "watch-node": "nodemon ./src/server.ts"
+    "watch-node": "nodemon"
   },
   "husky": {
     "hooks": {
@@ -14,7 +14,7 @@
     }
   },
   "lint-staged": {
-    "*.js": [
+    "src/*.js": [
       "eslint --fix",
       "prettier --write"
     ]
