@@ -31,13 +31,11 @@ class TokeService {
       );
     }
 
-    const token = await connection.execute(
-      'UPDATE tokens SET userId =?, refreshToken = ?',
+    await connection.execute(
+      'UPDATE tokens SET userId = ?, refreshToken = ?',
       [userId, refreshToken],
       (err) => console.error(err)
     );
-
-    return token;
   }
 }
 
