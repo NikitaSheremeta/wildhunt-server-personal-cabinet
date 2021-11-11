@@ -1,4 +1,4 @@
-# minecraft (Back-end side)
+# Wildhunt web (server)
 
 ### Установка всех зависимостей
 
