@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const connection = require('../../config/connection');
 
 class TokeService {
   generateTokens(payload) {
@@ -12,15 +13,25 @@ class TokeService {
   }
 
   async saveToken(userId, refreshToken) {
-    const tokenData = {}; // Найти такой же токен в БД
+    const [tokenData] = await connection.execute(
+      'SELECT user FROM tokens WHERE user = ?',
+      [userId],
+      (err) => console.error(err)
+    );
 
-    if (tokenData) {
-      tokenData.refreshToken = refreshToken;
-
-      return tokenData.save();
+    if (tokenData > 0) {
+      return connection.execute(
+        'INSERT INTO tokens (refreshToken) VALUES (?)',
+        [refreshToken],
+        (err) => console.error(err)
+      );
     }
 
-    const token = ''; // Записать токен в БД user: userId, refreshToken
+    const token = await connection.execute(
+      'INSERT INTO tokens (user, refreshToken) VALUES (?, ?)',
+      [userId,refreshToken],
+      (err) => console.error(err)
+    );
 
     return token;
   }

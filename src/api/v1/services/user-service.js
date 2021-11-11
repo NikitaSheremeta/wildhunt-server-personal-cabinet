@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
 const uuid = require('uuid');
-const connection = require('../config/connection');
+const connection = require('../../config/connection');
 const mailService = require('./mail-service');
 const tokenService = require('./token-service');
 
@@ -15,11 +15,7 @@ class UserService {
     );
 
     if (candidate.length > 0) {
-      return {
-        error: {
-          message: 'пользователь с таким почтовым адресом уже зарегистрирован'
-        }
-      };
+      console.log('пользователь с таким почтовым адресом уже зарегистрирован');
     }
 
     const hashPassword = await bcrypt.hash(password, saltRounds);
@@ -34,13 +30,14 @@ class UserService {
     const userData = {
       id: user.insertId,
       email,
+      isActivated: 0
     };
 
     await mailService.sendActivationMail(email, activationLink);
 
     const tokens = tokenService.generateTokens(userData);
 
-    // await tokenService.saveToken(userData.id, tokens.refreshToken);
+    await tokenService.saveToken(userData.id, tokens.refreshToken);
 
     return {
       success: 'Поздравляем - Вы успешно зарегистрировались!',
