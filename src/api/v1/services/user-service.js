@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
 const uuid = require('uuid');
-const connection = require('../database/connection');
+const connection = require('../config/connection');
 const mailService = require('./mail-service');
 const tokenService = require('./token-service');
 
