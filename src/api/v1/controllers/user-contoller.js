@@ -19,6 +19,16 @@ class UserController {
       console.error(err.message);
     }
   }
+
+  async activate(req, res) {
+    try {
+      await userService.activate(req.params.link);
+
+      return res.redirect(process.env.API_URL);
+    } catch (err) {
+      console.error(err.message);
+    }
+  }
 }
 
 module.exports = new UserController();

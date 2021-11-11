@@ -3,8 +3,12 @@ const connection = require('../../config/connection');
 
 class TokeService {
   generateTokens(payload) {
-    const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: '15m' });
-    const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, { expiresIn: '30d' });
+    const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, {
+      expiresIn: '15m'
+    });
+    const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {
+      expiresIn: '30d'
+    });
 
     return {
       accessToken,
@@ -14,22 +18,22 @@ class TokeService {
 
   async saveToken(userId, refreshToken) {
     const [tokenData] = await connection.execute(
-      'SELECT user FROM tokens WHERE user = ?',
+      'SELECT userId FROM tokens WHERE userId = ?',
       [userId],
       (err) => console.error(err)
     );
 
     if (tokenData > 0) {
       return connection.execute(
-        'INSERT INTO tokens (refreshToken) VALUES (?)',
+        'UPDATE tokens SET refreshToken = ?',
         [refreshToken],
         (err) => console.error(err)
       );
     }
 
     const token = await connection.execute(
-      'INSERT INTO tokens (user, refreshToken) VALUES (?, ?)',
-      [userId,refreshToken],
+      'UPDATE tokens SET userId =?, refreshToken = ?',
+      [userId, refreshToken],
       (err) => console.error(err)
     );
 
