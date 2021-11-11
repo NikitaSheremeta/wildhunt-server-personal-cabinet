@@ -1,35 +1,51 @@
 const bcrypt = require('bcrypt');
 const uuid = require('uuid');
+const connection = require('../database/connection');
 const mailService = require('./mail-service');
 const tokenService = require('./token-service');
-const UserDto = require('../dtos/user-dto');
 
 const saltRounds = 10;
 
 class UserService {
   async registration(email, password) {
-    const candidate = ''; // Проверить наличие юзера в БД: email
+    const [candidate] = await connection.execute(
+      'SELECT email FROM users WHERE email = ?',
+      [email],
+      (err) => console.error(err)
+    );
 
-    if (candidate) {
-      throw new Error(
-        `Пользователь с почтовым адресом ${email} уже существует`
-      );
+    if (candidate.length > 0) {
+      return {
+        error: {
+          message: 'пользователь с таким почтовым адресом уже зарегистрирован'
+        }
+      };
     }
 
     const hashPassword = await bcrypt.hash(password, saltRounds);
     const activationLink = uuid.v4();
-    const user = ''; // Создаем пользователя: email, hashPassword, activationLink
+
+    const [user] = await connection.execute(
+      'INSERT INTO users (email, password, isActivated,  activationLink) VALUES (?, ?, ?, ?)',
+      [email, hashPassword, 0, activationLink],
+      (err) => console.error(err)
+    );
+
+    const userData = {
+      id: user.insertId,
+      email,
+    };
 
     await mailService.sendActivationMail(email, activationLink);
 
-    const userDto = new UserDto(user);
-    const tokens = tokenService.generateTokens({ ...userDto });
+    const tokens = tokenService.generateTokens(userData);
 
-    await tokenService.saveToken(userDto.id, tokens.refreshToken);
+    // await tokenService.saveToken(userData.id, tokens.refreshToken);
 
     return {
+      success: 'Поздравляем - Вы успешно зарегистрировались!',
       ...tokens,
-      user: userDto
+      user: userData
     };
   }
 }

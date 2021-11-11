@@ -1,6 +1,5 @@
 const dotenv = require('dotenv');
 const express = require('express');
-const mysql = require('mysql');
 const cluster = require('cluster');
 const os = require('os');
 const cookieParser = require('cookie-parser');
@@ -10,13 +9,6 @@ const routes = require('./routes/index');
 dotenv.config();
 
 const app = express();
-
-const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'root',
-  database: 'minecraft'
-});
 
 const serverPort = process.env.SERVER_PORT;
 const oneCpu = 1;
@@ -40,10 +32,6 @@ const start = async function startServer() {
       });
     }
   } else {
-    await db.connect((err) =>
-      err ? console.error(err.message) : console.log('MySQL connected...')
-    );
-
     app.listen(serverPort, () =>
       console.log(`Server started on port: ${serverPort}, Pid: ${process.pid}`)
     );
