@@ -1,16 +1,13 @@
 const express = require('express');
-const statusCode = require('../utils/status-code');
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
-  try {
-    res.json({ user: 'user', password: 'password' });
-  } catch (err) {
-    res.status(statusCode.serverError.code).json({
-      message: statusCode.serverError.message
-    });
-  }
-});
+router.post('/registration');
+router.post('/login');
+router.post('/logout');
+
+router.get('/activate/:link');
+router.get('/refresh');
+router.get('/users');
 
 module.exports = router;
