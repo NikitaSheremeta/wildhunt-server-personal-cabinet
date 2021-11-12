@@ -3,6 +3,7 @@ const uuid = require('uuid');
 const connection = require('../../config/connection');
 const mailService = require('./mail-service');
 const tokenService = require('./token-service');
+const ApiError = require('../exceptions/api-error');
 
 const saltRounds = 10;
 const isActivated = 1;
@@ -16,7 +17,7 @@ class UserService {
     );
 
     if (candidate.length > 0) {
-      throw new Error(
+      throw ApiError.badRequest(
         'пользователь с таким почтовым адресом уже зарегистрирован'
       );
     }
@@ -60,7 +61,7 @@ class UserService {
     );
 
     if (user.length === 0) {
-      throw new Error('Некорректная ссылка активации');
+      throw ApiError.badRequest('Некорректная ссылка активации');
     }
 
     await connection.execute(

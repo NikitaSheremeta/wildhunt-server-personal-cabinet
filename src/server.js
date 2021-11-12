@@ -5,6 +5,7 @@ const os = require('os');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const routes = require('./api/v1/routes/index');
+const errorMiddleware = require('./api/v1/middlewares/error-middleware');
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors());
 app.use('/api/v1', routes);
+app.use(errorMiddleware);
 
 const start = async function startServer() {
   if (cluster.isMaster) {

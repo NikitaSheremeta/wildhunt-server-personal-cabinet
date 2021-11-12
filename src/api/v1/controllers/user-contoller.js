@@ -4,7 +4,7 @@ const userService = require('../services/user-service');
 const thirtyDays = 30 * 24 * 60 * 60 * 1000;
 
 class UserController {
-  async registration(req, res) {
+  async registration(req, res, next) {
     try {
       const { email, password } = req.body;
       const userData = await userService.registration(email, password);
@@ -16,17 +16,17 @@ class UserController {
 
       return res.json(userData);
     } catch (err) {
-      console.error(err.message);
+      next(err);
     }
   }
 
-  async activate(req, res) {
+  async activate(req, res, next) {
     try {
       await userService.activate(req.params.link);
 
       return res.redirect(process.env.API_URL);
     } catch (err) {
-      console.error(err.message);
+      next(err);
     }
   }
 }
