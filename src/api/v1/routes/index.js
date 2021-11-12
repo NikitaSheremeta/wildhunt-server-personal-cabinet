@@ -14,7 +14,7 @@ router.post(
   userController.registration
 );
 
-router.post('/login');
+router.post('/login', userController.login);
 router.post('/logout');
 
 router.get('/activate/:link', userController.activate);

@@ -2,11 +2,12 @@ const bcrypt = require('bcrypt');
 const uuid = require('uuid');
 const connection = require('../../config/connection');
 const mailService = require('./mail-service');
-const tokenService = require('./token-service');
+const utils = require('../utils/utils');
 const ApiError = require('../exceptions/api-error');
 
 const saltRounds = 10;
 const isActivated = 1;
+const invalidMailbox = 550;
 
 class UserService {
   async registration(email, password) {
@@ -18,12 +19,26 @@ class UserService {
 
     if (candidate.length > 0) {
       throw ApiError.badRequest(
-        'пользователь с таким почтовым адресом уже зарегистрирован'
+        'Пользователь с таким почтовым адресом уже зарегистрирован >_<'
       );
     }
 
-    const hashPassword = await bcrypt.hash(password, saltRounds);
     const activationLink = uuid.v4();
+
+    try {
+      await mailService.sendActivationMail(
+        email,
+        `${process.env.API_URL}/api/v1/activate/${activationLink}`
+      );
+    } catch (err) {
+      if (err.responseCode === invalidMailbox) {
+        throw ApiError.invalidMailbox(err.responseCode);
+      }
+
+      throw ApiError.badRequest(err, err.message);
+    }
+
+    const hashPassword = await bcrypt.hash(password, saltRounds);
 
     const [user] = await connection.execute(
       'INSERT INTO users (email, password, isActivated, activationLink) VALUES (?, ?, ?, ?)',
@@ -37,17 +52,10 @@ class UserService {
       isActivated: 0
     };
 
-    await mailService.sendActivationMail(
-      email,
-      `${process.env.API_URL}/api/v1/activate/${activationLink}`
-    );
-
-    const tokens = tokenService.generateTokens(userData);
-
-    await tokenService.saveToken(userData.id, tokens.refreshToken);
+    const tokens = await utils.generateAndSaveToken(userData);
 
     return {
-      success: 'Поздравляем - Вы успешно зарегистрировались!',
+      success: 'Вы успешно зарегистрированы ^_^',
       ...tokens,
       user: userData
     };
@@ -61,7 +69,7 @@ class UserService {
     );
 
     if (user.length === 0) {
-      throw ApiError.badRequest('Некорректная ссылка активации');
+      throw ApiError.badRequest('Недействительная ссылка активация o_O');
     }
 
     await connection.execute(
@@ -69,6 +77,39 @@ class UserService {
       [isActivated, 'NULL', user[0].id],
       (err) => console.error(err)
     );
+  }
+
+  async login(email, password) {
+    const [user] = await connection.execute(
+      'SELECT * FROM users WHERE email = ?',
+      [email],
+      (err) => console.error(err)
+    );
+
+    if (user.length === 0) {
+      throw ApiError.badRequest(
+        `Пользователь с почтовым адресом ${email} не найден :/`
+      );
+    }
+
+    const isPassEquals = await bcrypt.compare(password, user[0].password);
+
+    if (!isPassEquals) {
+      throw ApiError.badRequest('Неверный пароль T_T');
+    }
+
+    const userData = {
+      id: user[0].id,
+      email: user[0].email,
+      isActivated: user[0].isActivated
+    };
+
+    const tokens = await utils.generateAndSaveToken(userData);
+
+    return {
+      ...tokens,
+      user: userData
+    };
   }
 }
 

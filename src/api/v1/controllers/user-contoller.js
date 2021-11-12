@@ -13,7 +13,7 @@ class UserController {
       if (!errors.isEmpty()) {
         return next(
           ApiError.badRequest(
-            'Ошибка валидации при регистрации нового пользователя',
+            'Ошибка валидации введеных данных -_-',
             errors.array()
           )
         );
@@ -38,6 +38,23 @@ class UserController {
       await userService.activate(req.params.link);
 
       return res.redirect(process.env.API_URL);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async login(req, res, next) {
+    try {
+      const { email, password } = req.body;
+
+      const userData = await userService.login(email, password);
+
+      res.cookie('refreshToken', userData.refreshToken, {
+        maxAge: thirtyDays,
+        httpOnly: true
+      });
+
+      return res.json(userData);
     } catch (err) {
       next(err);
     }

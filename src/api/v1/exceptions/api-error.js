@@ -1,5 +1,5 @@
-const unauthorizedError = 401;
 const badRequest = 400;
+const unauthorizedError = 401;
 
 module.exports = class ApiError extends Error {
   status;
@@ -11,11 +11,15 @@ module.exports = class ApiError extends Error {
     this.errors = errors;
   }
 
+  static badRequest(message, errors = []) {
+    return new ApiError(badRequest, message, errors);
+  }
+
   static unauthorizedError() {
     return new ApiError(unauthorizedError, 'Пользователь не авторизован');
   }
 
-  static badRequest(message, errors = []) {
-    return new ApiError(badRequest, message, errors);
+  static invalidMailbox(code) {
+    return new ApiError(code, `Почтовый адрес не найден X_X`);
   }
 };

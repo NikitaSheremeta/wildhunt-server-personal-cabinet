@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const connection = require('../../config/connection');
 
-class TokeService {
+class TokenService {
   generateTokens(payload) {
     const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, {
       expiresIn: '15m'
@@ -18,7 +18,7 @@ class TokeService {
 
   async saveToken(userId, refreshToken) {
     const [tokenData] = await connection.execute(
-      'SELECT userId FROM tokens WHERE userId = ?',
+      'SELECT * FROM tokens WHERE userId = ?',
       [userId],
       (err) => console.error(err)
     );
@@ -39,4 +39,4 @@ class TokeService {
   }
 }
 
-module.exports = new TokeService();
+module.exports = new TokenService();
