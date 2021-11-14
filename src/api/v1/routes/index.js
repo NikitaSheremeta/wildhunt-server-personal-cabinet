@@ -18,7 +18,6 @@ router.post('/login', userController.login);
 router.post('/logout', userController.logout);
 
 router.get('/activate/:link', userController.activate);
-router.get('/refresh');
-router.get('/users');
+router.get('/refresh', userController.refresh);
 
 module.exports = router;
