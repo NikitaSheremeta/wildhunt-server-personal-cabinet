@@ -3,11 +3,10 @@ const uuid = require('uuid');
 const ApiError = require('../exceptions/api-error');
 const connection = require('../../config/connection');
 const mailService = require('./mail-service');
-const statusCodesHelper = require('../helpers/status-codes-helper');
 const utils = require('../utils/utils');
 
 const saltRounds = 10;
-const isActivated = 1;
+const isActivatedStatus = 1;
 
 class UserService {
   async registration(email, password) {
@@ -26,23 +25,10 @@ class UserService {
       );
     }
 
-    try {
-      await mailService.sendActivationMail(
-        email,
-        `${process.env.API_URL}/api/v1/activate/${activationLink}`
-      );
-    } catch (err) {
-      if (
-        err.responseCode ===
-        statusCodesHelper.smtpStatus.MAILBOX_UNAVAILABLE.code
-      ) {
-        throw ApiError.invalidMailbox(err.responseCode);
-      }
-
-      throw ApiError.badRequest(
-        'Ошибка при отпраке письма, попробуйте позже :('
-      );
-    }
+    await mailService.sendActivationMail(
+      email,
+      `${process.env.API_URL}/api/v1/activate/${activationLink}`
+    );
 
     const [user] = await connection.execute(
       'INSERT INTO users (email, password) VALUES (?, ?)',
@@ -83,15 +69,15 @@ class UserService {
     }
 
     await connection.execute(
-      'UPDATE users SET isActivated = ?, activationLink = ? WHERE id = ?',
-      [isActivated, 'NULL', user[0].id],
+      'UPDATE users, activation_links SET users.is_activated_status = ?, activation_links.link = ? WHERE activation_links.id = ? AND users.id = ?',
+      [isActivatedStatus, 'NULL', user[0].user_id, user[0].user_id],
       (err) => console.error(err)
     );
   }
 
   async login(email, password) {
     const [user] = await connection.execute(
-      'SELECT * FROM users WHERE email = ?',
+      'SELECT id, password, email, is_activated_status FROM users WHERE email = ?',
       [email],
       (err) => console.error(err)
     );
@@ -111,7 +97,7 @@ class UserService {
     const userData = {
       id: user[0].id,
       email: user[0].email,
-      isActivated: user[0].isActivated
+      isActivated: user[0].is_activated_status
     };
 
     const tokens = await utils.generateAndSaveToken(userData);

@@ -1,4 +1,6 @@
 const nodemailer = require('nodemailer');
+const statusCodesHelper = require('../helpers/status-codes-helper');
+const ApiError = require('../exceptions/api-error');
 
 class MailService {
   constructor() {
@@ -14,12 +16,13 @@ class MailService {
   }
 
   async sendActivationMail(to, link) {
-    await this.transporter.sendMail({
-      from: process.env.SMTP_USER,
-      to,
-      subject: 'Активация аккаунта Minecraft Wild Hunt',
-      text: '',
-      html: `
+    try {
+      await this.transporter.sendMail({
+        from: process.env.SMTP_USER,
+        to,
+        subject: 'Активация аккаунта Minecraft Wild Hunt',
+        text: '',
+        html: `
           <div>
             <h1>
               Для Активации аккаунта перейдите по ссылке ниже
@@ -27,7 +30,19 @@ class MailService {
             <a href="${link}">${link}</a>
           </div>
         `
-    });
+      });
+    } catch (err) {
+      if (
+        err.responseCode ===
+        statusCodesHelper.smtpStatus.MAILBOX_UNAVAILABLE.code
+      ) {
+        throw ApiError.invalidMailbox(err.responseCode);
+      }
+
+      throw ApiError.badRequest(
+        'Ошибка при отпраке письма, попробуйте позже :('
+      );
+    }
   }
 }
 

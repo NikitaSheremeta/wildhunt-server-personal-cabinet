@@ -23,16 +23,16 @@ class TokenService {
       (err) => console.error(err)
     );
 
-    if (tokenData > 0) {
+    if (tokenData.length > 0) {
       return connection.execute(
-        'UPDATE tokens SET refresh_token = ?',
-        [refreshToken],
+        'UPDATE tokens SET refresh_token = ? WHERE user_id = ?',
+        [refreshToken, userId],
         (err) => console.error(err)
       );
     }
 
     await connection.execute(
-      'UPDATE tokens SET user_id = ?, refresh_token = ?',
+      'INSERT INTO tokens (user_id, refresh_token) VALUES (?, ?)',
       [userId, refreshToken],
       (err) => console.error(err)
     );
