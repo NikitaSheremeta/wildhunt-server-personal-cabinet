@@ -25,6 +25,7 @@ module.exports = class ApiError extends Error {
     );
   }
 
+  // Only for mail.ru addresses
   static invalidMailbox() {
     return new ApiError(
       statusCodesHelper.smtpStatus.MAILBOX_UNAVAILABLE.code,

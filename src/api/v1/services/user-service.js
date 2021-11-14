@@ -4,6 +4,7 @@ const ApiError = require('../exceptions/api-error');
 const connection = require('../../config/connection');
 const mailService = require('./mail-service');
 const utils = require('../utils/utils');
+const tokenService = require('./token-service');
 
 const saltRounds = 10;
 const isActivatedStatus = 1;
@@ -106,6 +107,10 @@ class UserService {
       ...tokens,
       user: userData
     };
+  }
+
+  async logout(refreshToken) {
+    await tokenService.removeToken(refreshToken);
   }
 }
 

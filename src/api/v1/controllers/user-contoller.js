@@ -1,5 +1,6 @@
 const userService = require('../services/user-service');
 const { validationResult } = require('express-validator');
+const statusCodesHelper = require('../helpers/status-codes-helper');
 const ApiError = require('../exceptions/api-error');
 
 // eslint-disable-next-line no-magic-numbers
@@ -55,6 +56,19 @@ class UserController {
       });
 
       return res.json(userData);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async logout(req, res, next) {
+    try {
+      const { refreshToken } = req.cookies;
+      await userService.logout(refreshToken);
+
+      res.clearCookie('refreshToken');
+
+      return res.json(statusCodesHelper.httpStatus.OK.code);
     } catch (err) {
       next(err);
     }

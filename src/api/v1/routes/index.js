@@ -15,7 +15,7 @@ router.post(
 );
 
 router.post('/login', userController.login);
-router.post('/logout');
+router.post('/logout', userController.logout);
 
 router.get('/activate/:link', userController.activate);
 router.get('/refresh');

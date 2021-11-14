@@ -37,6 +37,14 @@ class TokenService {
       (err) => console.error(err)
     );
   }
+
+  async removeToken(refreshToken) {
+    await connection.execute(
+      'DELETE FROM tokens WHERE refresh_token = ?',
+      [refreshToken],
+      (err) => console.error(err)
+    );
+  }
 }
 
 module.exports = new TokenService();
