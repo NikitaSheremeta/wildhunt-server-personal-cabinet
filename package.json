@@ -4,9 +4,11 @@
   "description": "Back-end side",
   "main": "src/server.js",
   "scripts": {
-    "start": "npm run watch-node",
     "prepare": "husky install",
-    "watch-node": "nodemon"
+    "start": "npm run watch-node",
+    "watch-node": "nodemon",
+    "eslint": "eslint --fix './**/*.js'",
+    "prettier": "prettier --write './**/*.js'"
   },
   "husky": {
     "hooks": {

@@ -1,5 +1,4 @@
-const badRequest = 400;
-const unauthorizedError = 401;
+const statusCodesHelper = require('../helpers/status-codes-helper');
 
 module.exports = class ApiError extends Error {
   status;
@@ -12,14 +11,24 @@ module.exports = class ApiError extends Error {
   }
 
   static badRequest(message, errors = []) {
-    return new ApiError(badRequest, message, errors);
+    return new ApiError(
+      statusCodesHelper.httpStatus.BAD_REQUEST.code,
+      message,
+      errors
+    );
   }
 
   static unauthorizedError() {
-    return new ApiError(unauthorizedError, 'Пользователь не авторизован');
+    return new ApiError(
+      statusCodesHelper.httpStatus.UNAUTHORIZED.code,
+      'Пользователь не авторизован'
+    );
   }
 
-  static invalidMailbox(code) {
-    return new ApiError(code, `Почтовый адрес не найден X_X`);
+  static invalidMailbox() {
+    return new ApiError(
+      statusCodesHelper.smtpStatus.MAILBOX_UNAVAILABLE.code,
+      `Почтовый адрес не найден X_X`
+    );
   }
 };

@@ -18,21 +18,21 @@ class TokenService {
 
   async saveToken(userId, refreshToken) {
     const [tokenData] = await connection.execute(
-      'SELECT * FROM tokens WHERE userId = ?',
+      'SELECT * FROM tokens WHERE user_id = ?',
       [userId],
       (err) => console.error(err)
     );
 
     if (tokenData > 0) {
       return connection.execute(
-        'UPDATE tokens SET refreshToken = ?',
+        'UPDATE tokens SET refresh_token = ?',
         [refreshToken],
         (err) => console.error(err)
       );
     }
 
     await connection.execute(
-      'UPDATE tokens SET userId = ?, refreshToken = ?',
+      'UPDATE tokens SET user_id = ?, refresh_token = ?',
       [userId, refreshToken],
       (err) => console.error(err)
     );

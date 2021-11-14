@@ -1,16 +1,19 @@
 const bcrypt = require('bcrypt');
 const uuid = require('uuid');
+const ApiError = require('../exceptions/api-error');
 const connection = require('../../config/connection');
 const mailService = require('./mail-service');
+const statusCodesHelper = require('../helpers/status-codes-helper');
 const utils = require('../utils/utils');
-const ApiError = require('../exceptions/api-error');
 
 const saltRounds = 10;
 const isActivated = 1;
-const invalidMailbox = 550;
 
 class UserService {
   async registration(email, password) {
+    const hashPassword = await bcrypt.hash(password, saltRounds);
+    const activationLink = uuid.v4();
+
     const [candidate] = await connection.execute(
       'SELECT email FROM users WHERE email = ?',
       [email],
@@ -23,26 +26,33 @@ class UserService {
       );
     }
 
-    const activationLink = uuid.v4();
-
     try {
       await mailService.sendActivationMail(
         email,
         `${process.env.API_URL}/api/v1/activate/${activationLink}`
       );
     } catch (err) {
-      if (err.responseCode === invalidMailbox) {
+      if (
+        err.responseCode ===
+        statusCodesHelper.smtpStatus.MAILBOX_UNAVAILABLE.code
+      ) {
         throw ApiError.invalidMailbox(err.responseCode);
       }
 
-      throw ApiError.badRequest(err, err.message);
+      throw ApiError.badRequest(
+        'Ошибка при отпраке письма, попробуйте позже :('
+      );
     }
 
-    const hashPassword = await bcrypt.hash(password, saltRounds);
-
     const [user] = await connection.execute(
-      'INSERT INTO users (email, password, isActivated, activationLink) VALUES (?, ?, ?, ?)',
-      [email, hashPassword, 0, activationLink],
+      'INSERT INTO users (email, password) VALUES (?, ?)',
+      [email, hashPassword],
+      (err) => console.error(err)
+    );
+
+    await connection.execute(
+      'INSERT INTO activation_links (user_id, link) VALUES (LAST_INSERT_ID(), ?)',
+      [activationLink],
       (err) => console.error(err)
     );
 
@@ -63,7 +73,7 @@ class UserService {
 
   async activate(activationLink) {
     const [user] = await connection.execute(
-      'SELECT id FROM users WHERE activationLink = ?',
+      'SELECT user_id FROM activation_links WHERE link = ?',
       [activationLink],
       (err) => console.error(err)
     );
