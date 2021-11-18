@@ -138,6 +138,40 @@ class UserService {
       user: user[0]
     };
   }
+
+  // ===========================================================================
+
+  async createUser(userData) {
+    const [user] = await connection.execute(
+      'INSERT INTO users (user_name, email, birth_date, registration_date, password) VALUES (?, ?, ?, ?, ?)',
+      [
+        userData.userName,
+        userData.email,
+        userData.birthDate,
+        userData.registrationDate,
+        userData.password
+      ],
+      (err) => console.error(err)
+    );
+
+    await connection.execute(
+      'INSERT INTO user_roles (user_id) VALUE (LAST_INSERT_ID())',
+      [],
+      (err) => console.error(err)
+    );
+
+    return user;
+  }
+
+  async getUserByEmail(email) {
+    const [user] = await connection.execute(
+      'SELECT * FROM users WHERE email = ?',
+      [email],
+      (err) => console.error(err)
+    );
+
+    return user.length > 0 ? user[0] : false;
+  }
 }
 
 module.exports = new UserService();

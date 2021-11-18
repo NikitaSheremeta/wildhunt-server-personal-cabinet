@@ -33,3 +33,6 @@ build
 build/*
 # Nuxt generate
 dist
+
+# Utils files
+src/api/v1/utils/*.js
