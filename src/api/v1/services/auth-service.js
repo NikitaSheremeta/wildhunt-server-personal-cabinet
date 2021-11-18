@@ -1,6 +1,7 @@
 const userService = require('./user-service');
 const ApiError = require('../exceptions/api-error');
 const bcrypt = require('bcrypt');
+const utils = require('../utils/utils');
 
 const salt = 10;
 
@@ -16,7 +17,14 @@ class AuthService {
 
     userInputData.password = await bcrypt.hash(userInputData.password, salt);
 
-    await userService.createUser(userInputData);
+    const user = await userService.createUser(userInputData);
+
+    await userService.userConfirmation(userInputData.email, user.insertId);
+
+    return await utils.generateAndSaveToken({
+      id: user.insertId,
+      userName: userInputData.userName
+    });
   }
 }
 

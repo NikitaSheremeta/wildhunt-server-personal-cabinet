@@ -6,58 +6,9 @@ const mailService = require('./mail-service');
 const utils = require('../utils/utils');
 const tokenService = require('./token-service');
 
-const saltRounds = 10;
 const isActivatedStatus = 1;
 
 class UserService {
-  async registration(email, password) {
-    const hashPassword = await bcrypt.hash(password, saltRounds);
-    const activationLink = uuid.v4();
-
-    const [candidate] = await connection.execute(
-      'SELECT email FROM users WHERE email = ?',
-      [email],
-      (err) => console.error(err)
-    );
-
-    if (candidate.length > 0) {
-      throw ApiError.badRequest(
-        'Пользователь с таким почтовым адресом уже зарегистрирован >_<'
-      );
-    }
-
-    await mailService.sendActivationMail(
-      email,
-      `${process.env.API_URL}/api/v1/activate/${activationLink}`
-    );
-
-    const [user] = await connection.execute(
-      'INSERT INTO users (email, password) VALUES (?, ?)',
-      [email, hashPassword],
-      (err) => console.error(err)
-    );
-
-    await connection.execute(
-      'INSERT INTO activation_links (user_id, link) VALUES (LAST_INSERT_ID(), ?)',
-      [activationLink],
-      (err) => console.error(err)
-    );
-
-    const userData = {
-      id: user.insertId,
-      email,
-      isActivated: 0
-    };
-
-    const tokens = await utils.generateAndSaveToken(userData);
-
-    return {
-      success: 'Вы успешно зарегистрированы ^_^',
-      ...tokens,
-      user: userData
-    };
-  }
-
   async activate(activationLink) {
     const [user] = await connection.execute(
       'SELECT user_id FROM activation_links WHERE link = ?',
@@ -141,6 +92,16 @@ class UserService {
 
   // ===========================================================================
 
+  async getUserByEmail(email) {
+    const [user] = await connection.execute(
+      'SELECT * FROM users WHERE email = ?',
+      [email],
+      (err) => console.error(err)
+    );
+
+    return user.length > 0 ? user[0] : false;
+  }
+
   async createUser(userData) {
     const [user] = await connection.execute(
       'INSERT INTO users (user_name, email, birth_date, registration_date, password) VALUES (?, ?, ?, ?, ?)',
@@ -163,14 +124,19 @@ class UserService {
     return user;
   }
 
-  async getUserByEmail(email) {
-    const [user] = await connection.execute(
-      'SELECT * FROM users WHERE email = ?',
-      [email],
-      (err) => console.error(err)
+  async userConfirmation(email, userId) {
+    const activationLink = uuid.v4();
+
+    await mailService.sendActivationMail(
+      email,
+      `${process.env.API_URL}/api/v1/activate/${activationLink}`
     );
 
-    return user.length > 0 ? user[0] : false;
+    await connection.execute(
+      'INSERT INTO activation_links (user_id, link) VALUES (?, ?)',
+      [userId, activationLink],
+      (err) => console.error(err)
+    );
   }
 }
 
