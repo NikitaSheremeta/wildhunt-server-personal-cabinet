@@ -37,7 +37,7 @@ module.exports = {
         ignoreArrayIndexes: true,
         enforceConst: true,
         detectObjects: false,
-        ignore: [0]
+        ignore: [0, 1]
       }
     ],
     'no-unused-vars': [

@@ -134,11 +134,9 @@ class UserService {
       return false;
     }
 
-    const isActivatedStatus = 1;
-
     await connection.execute(
       'UPDATE users SET is_activated_status = ? WHERE users.id = ?',
-      [isActivatedStatus, user[0].user_id],
+      [1, user[0].user_id],
       (err) => console.error(err)
     );
   }
