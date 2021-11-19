@@ -19,7 +19,7 @@ class AuthService {
 
     const user = await userService.createUser(userInputData);
 
-    await userService.userConfirmation(userInputData.email, user.insertId);
+    await userService.confirmUser(userInputData.email, user.insertId);
 
     return await utils.generateAndSaveToken({
       id: user.insertId,

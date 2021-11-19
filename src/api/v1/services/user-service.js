@@ -6,27 +6,7 @@ const mailService = require('./mail-service');
 const utils = require('../utils/utils');
 const tokenService = require('./token-service');
 
-const isActivatedStatus = 1;
-
 class UserService {
-  async activate(activationLink) {
-    const [user] = await connection.execute(
-      'SELECT user_id FROM activation_links WHERE link = ?',
-      [activationLink],
-      (err) => console.error(err)
-    );
-
-    if (user.length === 0) {
-      throw ApiError.badRequest('Недействительная ссылка активация o_O');
-    }
-
-    await connection.execute(
-      'UPDATE users, activation_links SET users.is_activated_status = ?, activation_links.link = ? WHERE activation_links.id = ? AND users.id = ?',
-      [isActivatedStatus, 'NULL', user[0].user_id, user[0].user_id],
-      (err) => console.error(err)
-    );
-  }
-
   async login(email, password) {
     const [user] = await connection.execute(
       'SELECT id, password, email, is_activated_status FROM users WHERE email = ?',
@@ -124,7 +104,7 @@ class UserService {
     return user;
   }
 
-  async userConfirmation(email, userId) {
+  async confirmUser(email, userId) {
     const activationLink = uuid.v4();
 
     await mailService.sendActivationMail(
@@ -135,6 +115,30 @@ class UserService {
     await connection.execute(
       'INSERT INTO activation_links (user_id, link) VALUES (?, ?)',
       [userId, activationLink],
+      (err) => console.error(err)
+    );
+  }
+
+  async activateUser(activationLink) {
+    const [user] = await connection.execute(
+      'SELECT is_activated_status, user_id FROM users JOIN activation_links WHERE link = ?',
+      [activationLink],
+      (err) => console.error(err)
+    );
+
+    if (user.length === 0) {
+      throw ApiError.badRequest('Недействительная ссылка активация o_O');
+    }
+
+    if (user[0].is_activated_status !== 0) {
+      return false;
+    }
+
+    const isActivatedStatus = 1;
+
+    await connection.execute(
+      'UPDATE users SET is_activated_status = ? WHERE users.id = ?',
+      [isActivatedStatus, user[0].user_id],
       (err) => console.error(err)
     );
   }
