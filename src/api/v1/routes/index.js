@@ -24,7 +24,7 @@ router.post(
 router.post('/login', userController.login);
 router.post('/logout', userController.logout);
 
-router.get('/activate/:link', userController.activate);
+router.get('/auth/activate/:link', authController.activate);
 router.get('/refresh', userController.refresh);
 
 module.exports = router;

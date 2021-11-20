@@ -6,7 +6,7 @@ const utils = require('../utils/utils');
 const salt = 10;
 
 class AuthService {
-  async registration(userInputData) {
+  async userRegistration(userInputData) {
     const candidate = await userService.getUserByEmail(userInputData.email);
 
     if (candidate) {
@@ -25,6 +25,20 @@ class AuthService {
       id: user.insertId,
       userName: userInputData.userName
     });
+  }
+
+  async userActivation(activationLink) {
+    const user = await userService.checkUserActivationLink(activationLink);
+
+    if (!user) {
+      throw ApiError.badRequest('Недействительная ссылка активация o_O');
+    }
+
+    if (user.is_activation_status !== 0) {
+      return false;
+    }
+
+    await userService.updateUserActivationStatus(user.id);
   }
 }
 

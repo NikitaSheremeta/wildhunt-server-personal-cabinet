@@ -28,7 +28,7 @@ class AuthController {
         password: req.body.password
       };
 
-      const userData = await authService.registration(userInputData);
+      const userData = await authService.userRegistration(userInputData);
 
       res.cookie('refreshToken', userData.refreshToken, {
         maxAge: thirtyDays,
@@ -36,6 +36,16 @@ class AuthController {
       });
 
       return res.json(userData);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async activate(req, res, next) {
+    try {
+      await authService.userActivation(req.params.link);
+
+      return res.redirect(process.env.API_URL);
     } catch (err) {
       next(err);
     }
