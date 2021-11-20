@@ -27,11 +27,36 @@ class AuthService {
     });
   }
 
+  async userLogin(login, password) {
+    let user;
+
+    if (login.indexOf('@') > -1) {
+      user = await userService.getUserByEmail(login);
+    } else {
+      user = await userService.getUserByName(login);
+    }
+
+    if (!user) {
+      throw ApiError.badRequest(`Пользователь не найден :/`);
+    }
+
+    const isPassEquals = await bcrypt.compare(password, user.password);
+
+    if (!isPassEquals) {
+      throw ApiError.badRequest('Неверный лоин или пароль T_T');
+    }
+
+    return await utils.generateAndSaveToken({
+      id: user.id,
+      userName: user.user_name
+    });
+  }
+
   async userActivation(activationLink) {
     const user = await userService.checkUserActivationLink(activationLink);
 
     if (!user) {
-      throw ApiError.badRequest('Недействительная ссылка активация o_O');
+      throw ApiError.badRequest('Ссылка Недействительна o_O');
     }
 
     if (user.is_activation_status !== 0) {

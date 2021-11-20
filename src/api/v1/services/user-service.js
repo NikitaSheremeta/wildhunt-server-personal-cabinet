@@ -1,4 +1,3 @@
-const bcrypt = require('bcrypt');
 const uuid = require('uuid');
 const ApiError = require('../exceptions/api-error');
 const connection = require('../../config/connection');
@@ -7,39 +6,6 @@ const utils = require('../utils/utils');
 const tokenService = require('./token-service');
 
 class UserService {
-  async login(email, password) {
-    const [user] = await connection.execute(
-      'SELECT id, password, email, is_activation_status FROM users WHERE email = ?',
-      [email],
-      (err) => console.error(err)
-    );
-
-    if (user.length === 0) {
-      throw ApiError.badRequest(
-        `Пользователь с почтовым адресом ${email} не найден :/`
-      );
-    }
-
-    const isPassEquals = await bcrypt.compare(password, user[0].password);
-
-    if (!isPassEquals) {
-      throw ApiError.badRequest('Неверный пароль T_T');
-    }
-
-    const userData = {
-      id: user[0].id,
-      email: user[0].email,
-      isActivated: user[0].is_activation_status
-    };
-
-    const tokens = await utils.generateAndSaveToken(userData);
-
-    return {
-      ...tokens,
-      user: userData
-    };
-  }
-
   async logout(refreshToken) {
     await tokenService.removeToken(refreshToken);
   }
@@ -76,6 +42,16 @@ class UserService {
     const [user] = await connection.execute(
       'SELECT * FROM users WHERE email = ?',
       [email],
+      (err) => console.error(err)
+    );
+
+    return user.length > 0 ? user[0] : false;
+  }
+
+  async getUserByName(userName) {
+    const [user] = await connection.execute(
+      'SELECT * FROM users WHERE user_name = ?',
+      [userName],
       (err) => console.error(err)
     );
 
