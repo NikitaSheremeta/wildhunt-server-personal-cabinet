@@ -1,7 +1,8 @@
-const authService = require('../services/auth-service');
 const { validationResult } = require('express-validator');
 const ApiError = require('../exceptions/api-error');
 const utils = require('../utils/utils');
+const authService = require('../services/auth-service');
+const statusCodesHelper = require('../helpers/status-codes-helper');
 
 // eslint-disable-next-line no-magic-numbers
 const thirtyDays = 30 * 24 * 60 * 60 * 1000;
@@ -53,6 +54,19 @@ class AuthController {
       });
 
       return res.json(userData);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async logout(req, res, next) {
+    try {
+      const { refreshToken } = req.cookies;
+      await authService.userLogout(refreshToken);
+
+      res.clearCookie('refreshToken');
+
+      return res.json(statusCodesHelper.httpStatus.OK.code);
     } catch (err) {
       next(err);
     }

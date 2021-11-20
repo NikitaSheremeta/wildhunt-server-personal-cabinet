@@ -22,7 +22,7 @@ router.post(
 );
 
 router.post('/auth/login', authController.login);
-router.post('/logout', userController.logout);
+router.post('/auth/logout', authController.logout);
 
 router.get('/auth/activate/:link', authController.activate);
 router.get('/refresh', userController.refresh);

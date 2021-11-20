@@ -2,6 +2,7 @@ const userService = require('./user-service');
 const ApiError = require('../exceptions/api-error');
 const bcrypt = require('bcrypt');
 const utils = require('../utils/utils');
+const tokenService = require('./token-service');
 
 const salt = 10;
 
@@ -50,6 +51,10 @@ class AuthService {
       id: user.id,
       userName: user.user_name
     });
+  }
+
+  async userLogout(refreshToken) {
+    await tokenService.removeToken(refreshToken);
   }
 
   async userActivation(activationLink) {

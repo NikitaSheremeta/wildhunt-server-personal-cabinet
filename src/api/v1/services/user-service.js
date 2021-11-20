@@ -6,10 +6,6 @@ const utils = require('../utils/utils');
 const tokenService = require('./token-service');
 
 class UserService {
-  async logout(refreshToken) {
-    await tokenService.removeToken(refreshToken);
-  }
-
   async refresh(refreshToken) {
     if (!refreshToken) {
       throw ApiError.unauthorizedError();
@@ -38,6 +34,16 @@ class UserService {
 
   // ===========================================================================
 
+  async getUserById(id) {
+    const [user] = await connection.execute(
+      'SELECT * FROM users WHERE id = ?',
+      [id],
+      (err) => console.error(err)
+    );
+
+    return user.length > 0 ? user[0] : false;
+  }
+
   async getUserByEmail(email) {
     const [user] = await connection.execute(
       'SELECT * FROM users WHERE email = ?',
@@ -48,10 +54,10 @@ class UserService {
     return user.length > 0 ? user[0] : false;
   }
 
-  async getUserByName(userName) {
+  async getUserByName(name) {
     const [user] = await connection.execute(
       'SELECT * FROM users WHERE user_name = ?',
-      [userName],
+      [name],
       (err) => console.error(err)
     );
 
