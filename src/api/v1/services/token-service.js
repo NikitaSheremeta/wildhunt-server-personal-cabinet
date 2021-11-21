@@ -69,7 +69,7 @@ class TokenService {
       (err) => console.error(err)
     );
 
-    return tokenData;
+    return tokenData.length > 0 ? tokenData[0] : false;
   }
 
   async generateAndSaveTokens(userData) {

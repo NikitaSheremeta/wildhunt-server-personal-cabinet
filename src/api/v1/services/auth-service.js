@@ -84,7 +84,10 @@ class AuthService {
 
     const user = await userService.getUserById(userData.id);
 
-    return await tokenService.generateAndSaveTokens(user[0]);
+    return await tokenService.generateAndSaveTokens({
+      id: user.id,
+      userName: user.user_name
+    });
   }
 }
 
