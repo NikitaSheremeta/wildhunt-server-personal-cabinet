@@ -33,6 +33,14 @@ class UserService {
     return user.length > 0 ? user[0] : false;
   }
 
+  async getAllUsers() {
+    const [users] = await connection.execute('SELECT * FROM users', [], (err) =>
+      console.error(err)
+    );
+
+    return users.length > 0 ? users : false;
+  }
+
   async createUser(userData) {
     const [user] = await connection.execute(
       'INSERT INTO users (user_name, email, birth_date, registration_date, password) VALUES (?, ?, ?, ?, ?)',
