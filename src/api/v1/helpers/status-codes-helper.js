@@ -21,6 +21,10 @@ class StatusCodesHelper {
         code: 401,
         message: 'UNAUTHORIZED'
       },
+      FORBIDDEN: {
+        code: 403,
+        message: 'Forbidden'
+      },
       INTERNAL_SERVER_ERROR: {
         code: 500,
         message: 'INTERNAL_SERVER_ERROR'

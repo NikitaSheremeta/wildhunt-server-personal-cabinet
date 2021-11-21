@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer');
 const statusCodesHelper = require('../helpers/status-codes-helper');
-const ApiError = require('../exceptions/api-error');
+const ApiErrorHelper = require('../helpers/api-error-helper');
 
 class MailService {
   constructor() {
@@ -36,10 +36,10 @@ class MailService {
         err.responseCode ===
         statusCodesHelper.smtpStatus.MAILBOX_UNAVAILABLE.code
       ) {
-        throw ApiError.invalidMailbox(err.responseCode);
+        throw ApiErrorHelper.invalidMailbox(err.responseCode);
       }
 
-      throw ApiError.badRequest(
+      throw ApiErrorHelper.badRequest(
         'Ошибка при отпраке письма, попробуйте позже :('
       );
     }

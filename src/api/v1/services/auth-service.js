@@ -1,5 +1,5 @@
 const userService = require('./user-service');
-const ApiError = require('../exceptions/api-error');
+const ApiErrorHelper = require('../helpers/api-error-helper');
 const bcrypt = require('bcrypt');
 const tokenService = require('./token-service');
 
@@ -10,7 +10,7 @@ class AuthService {
     const candidate = await userService.getUserByEmail(userInputData.email);
 
     if (candidate) {
-      throw ApiError.badRequest(
+      throw ApiErrorHelper.badRequest(
         'Пользователь с таким почтовым адресом уже зарегистрирован >_<'
       );
     }
@@ -37,13 +37,13 @@ class AuthService {
     }
 
     if (!user) {
-      throw ApiError.badRequest(`Пользователь не найден :/`);
+      throw ApiErrorHelper.badRequest(`Пользователь не найден :/`);
     }
 
     const isPassEquals = await bcrypt.compare(password, user.password);
 
     if (!isPassEquals) {
-      throw ApiError.badRequest('Неверный лоин или пароль T_T');
+      throw ApiErrorHelper.badRequest('Неверный лоин или пароль T_T');
     }
 
     return await tokenService.generateAndSaveTokens({
@@ -60,7 +60,7 @@ class AuthService {
     const user = await userService.checkUserActivationLink(activationLink);
 
     if (!user) {
-      throw ApiError.badRequest('Ссылка Недействительна o_O');
+      throw ApiErrorHelper.badRequest('Ссылка Недействительна o_O');
     }
 
     if (user.is_activation_status !== 0) {
@@ -72,14 +72,14 @@ class AuthService {
 
   async userRefreshToken(refreshToken) {
     if (!refreshToken) {
-      throw ApiError.unauthorizedError();
+      throw ApiErrorHelper.unauthorizedError();
     }
 
     const userData = tokenService.validateRefreshToken(refreshToken);
     const tokenFromDB = await tokenService.findToken(refreshToken);
 
     if (!userData || !tokenFromDB) {
-      throw ApiError.unauthorizedError();
+      throw ApiErrorHelper.unauthorizedError();
     }
 
     const user = await userService.getUserById(userData.id);
