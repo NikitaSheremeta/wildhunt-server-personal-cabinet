@@ -100,6 +100,21 @@ class UserService {
       (err) => console.error(err)
     );
   }
+
+  async getUserSiteRoles(id) {
+    const sql =
+      'SELECT s.value ' +
+      'FROM user_roles AS u ' +
+      'INNER JOIN site_roles AS s ' +
+      'WHERE u.site_role_id = s.id ' +
+      'AND u.user_id = ?';
+
+    const [roles] = await connection.execute(sql, [id], (err) =>
+      console.error(err)
+    );
+
+    return roles.length > 0 ? roles : false;
+  }
 }
 
 module.exports = new UserService();

@@ -2,12 +2,7 @@ const ApiErrorHelper = require('../helpers/api-error-helper');
 const tokenService = require('../services/token-service');
 
 module.exports = function (roles) {
-  // eslint-disable-next-line
   return function (req, res, next) {
-    if (req.method === 'OPTIONS') {
-      next();
-    }
-
     try {
       const authorizationHeader = req.headers.authorization;
 
@@ -15,9 +10,9 @@ module.exports = function (roles) {
         return next(ApiErrorHelper.unauthorizedError());
       }
 
-      const accessToken = authorizationHeader.split(' ')[1];
+      const [bearer, accessToken] = authorizationHeader.split(' ');
 
-      if (!accessToken) {
+      if (bearer !== 'Bearer' || !accessToken) {
         return next(ApiErrorHelper.unauthorizedError());
       }
 

@@ -23,7 +23,8 @@ class AuthService {
 
     return await tokenService.generateAndSaveTokens({
       id: user.insertId,
-      userName: userInputData.userName
+      userName: userInputData.userName,
+      roles: ['User']
     });
   }
 
@@ -37,7 +38,7 @@ class AuthService {
     }
 
     if (!user) {
-      throw ApiErrorHelper.badRequest(`Пользователь не найден :/`);
+      throw ApiErrorHelper.badRequest('Пользователь не найден :/');
     }
 
     const isPassEquals = await bcrypt.compare(password, user.password);
@@ -46,9 +47,16 @@ class AuthService {
       throw ApiErrorHelper.badRequest('Неверный лоин или пароль T_T');
     }
 
+    const roles = await userService.getUserSiteRoles(user.id);
+
+    if (!roles) {
+      throw ApiErrorHelper.badRequest('Роли не обнаружены х_X');
+    }
+
     return await tokenService.generateAndSaveTokens({
       id: user.id,
-      userName: user.user_name
+      userName: user.user_name,
+      roles: roles.map((role) => role.value)
     });
   }
 
@@ -84,9 +92,20 @@ class AuthService {
 
     const user = await userService.getUserById(userData.id);
 
+    if (!user) {
+      throw ApiErrorHelper.badRequest('Пользователь не найден :/');
+    }
+
+    const roles = await userService.getUserSiteRoles(userData.id);
+
+    if (!roles) {
+      throw ApiErrorHelper.badRequest('Роли не обнаружены х_X');
+    }
+
     return await tokenService.generateAndSaveTokens({
       id: user.id,
-      userName: user.user_name
+      userName: user.user_name,
+      roles: roles.map((role) => role.value)
     });
   }
 }

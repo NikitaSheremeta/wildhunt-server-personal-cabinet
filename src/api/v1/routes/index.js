@@ -2,7 +2,7 @@ const express = require('express');
 const { body } = require('express-validator');
 const authController = require('../controllers/auth-controller');
 const userController = require('../controllers/user-controller');
-const authMiddleware = require('../middlewares/auth-middleware');
+const AccessRightsMiddleware = require('../middlewares/access-rights-middleware');
 
 const router = express.Router();
 
@@ -25,6 +25,10 @@ router.post('/auth/logout', authController.logout);
 router.get('/auth/activate/:link', authController.activate);
 router.get('/auth/refresh', authController.refresh);
 
-router.get('/users/', authMiddleware, userController.getUsers);
+router.get(
+  '/users/',
+  AccessRightsMiddleware(['Administrator', 'User']),
+  userController.getUsers
+);
 
 module.exports = router;
