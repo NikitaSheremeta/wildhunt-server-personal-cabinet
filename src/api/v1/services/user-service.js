@@ -1,39 +1,8 @@
 const uuid = require('uuid');
-const ApiError = require('../exceptions/api-error');
 const connection = require('../../config/connection');
 const mailService = require('./mail-service');
-const utils = require('../utils/utils');
-const tokenService = require('./token-service');
 
 class UserService {
-  async refresh(refreshToken) {
-    if (!refreshToken) {
-      throw ApiError.unauthorizedError();
-    }
-
-    const userData = tokenService.validateRefreshToken(refreshToken);
-    const tokenFromDB = await tokenService.findToken(refreshToken);
-
-    if (!userData || !tokenFromDB) {
-      throw ApiError.unauthorizedError();
-    }
-
-    const [user] = await connection.execute(
-      'SELECT id, email, is_activation_status FROM users WHERE id = ?',
-      [userData.id],
-      (err) => console.error(err)
-    );
-
-    const tokens = await utils.generateAndSaveToken(user[0]);
-
-    return {
-      ...tokens,
-      user: user[0]
-    };
-  }
-
-  // ===========================================================================
-
   async getUserById(id) {
     const [user] = await connection.execute(
       'SELECT * FROM users WHERE id = ?',

@@ -81,6 +81,23 @@ class AuthController {
       next(err);
     }
   }
+
+  async refresh(req, res, next) {
+    try {
+      const { refreshToken } = req.cookies;
+
+      const userData = await authService.userRefreshToken(refreshToken);
+
+      res.cookie('refreshToken', userData.refreshToken, {
+        maxAge: thirtyDays,
+        httpOnly: true
+      });
+
+      return res.json(userData);
+    } catch (err) {
+      next(err);
+    }
+  }
 }
 
 module.exports = new AuthController();

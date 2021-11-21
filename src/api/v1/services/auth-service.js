@@ -1,7 +1,6 @@
 const userService = require('./user-service');
 const ApiError = require('../exceptions/api-error');
 const bcrypt = require('bcrypt');
-const utils = require('../utils/utils');
 const tokenService = require('./token-service');
 
 const salt = 10;
@@ -22,7 +21,7 @@ class AuthService {
 
     await userService.confirmUser(userInputData.email, user.insertId);
 
-    return await utils.generateAndSaveToken({
+    return await tokenService.generateAndSaveTokens({
       id: user.insertId,
       userName: userInputData.userName
     });
@@ -47,7 +46,7 @@ class AuthService {
       throw ApiError.badRequest('Неверный лоин или пароль T_T');
     }
 
-    return await utils.generateAndSaveToken({
+    return await tokenService.generateAndSaveTokens({
       id: user.id,
       userName: user.user_name
     });
@@ -69,6 +68,23 @@ class AuthService {
     }
 
     await userService.updateUserActivationStatus(user.id);
+  }
+
+  async userRefreshToken(refreshToken) {
+    if (!refreshToken) {
+      throw ApiError.unauthorizedError();
+    }
+
+    const userData = tokenService.validateRefreshToken(refreshToken);
+    const tokenFromDB = await tokenService.findToken(refreshToken);
+
+    if (!userData || !tokenFromDB) {
+      throw ApiError.unauthorizedError();
+    }
+
+    const user = await userService.getUserById(userData.id);
+
+    return await tokenService.generateAndSaveTokens(user[0]);
   }
 }
 

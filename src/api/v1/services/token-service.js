@@ -71,6 +71,14 @@ class TokenService {
 
     return tokenData;
   }
+
+  async generateAndSaveTokens(userData) {
+    const tokens = this.generateTokens(userData);
+
+    await this.saveToken(userData.id, tokens.refreshToken);
+
+    return tokens;
+  }
 }
 
 module.exports = new TokenService();
