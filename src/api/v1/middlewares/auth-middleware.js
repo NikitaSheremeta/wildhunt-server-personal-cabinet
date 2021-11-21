@@ -9,9 +9,10 @@ module.exports = function (req, res, next) {
       return next(ApiError.unauthorizedError());
     }
 
+    const bearer = authorizationHeader.split(' ')[0];
     const accessToken = authorizationHeader.split(' ')[1];
 
-    if (!accessToken) {
+    if (bearer !== 'Bearer' || !accessToken) {
       return next(ApiError.unauthorizedError());
     }
 
