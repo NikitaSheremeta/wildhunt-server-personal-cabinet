@@ -2,7 +2,7 @@ const express = require('express');
 const { body } = require('express-validator');
 const authController = require('../controllers/auth-controller');
 const userController = require('../controllers/user-controller');
-const AccessRightsMiddleware = require('../middlewares/access-rights-middleware');
+const permissionMiddleware = require('../middlewares/permission-middleware');
 
 const router = express.Router();
 
@@ -27,7 +27,7 @@ router.get('/auth/refresh', authController.refresh);
 
 router.get(
   '/users/',
-  AccessRightsMiddleware(['Administrator', 'User']),
+  permissionMiddleware(['Administrator']),
   userController.getUsers
 );
 

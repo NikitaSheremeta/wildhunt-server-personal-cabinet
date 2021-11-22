@@ -1,4 +1,4 @@
-const ApiErrorHelper = require('../helpers/api-error-helper');
+const ApiErrorHelper = require('../exceptions/api-error-helper');
 const tokenService = require('../services/token-service');
 
 module.exports = function (roles) {

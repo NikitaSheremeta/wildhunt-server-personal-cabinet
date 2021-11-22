@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer');
-const statusCodesHelper = require('../helpers/status-codes-helper');
-const ApiErrorHelper = require('../helpers/api-error-helper');
+const statusCodesHelper = require('../utils/status-codes-helper');
+const ApiErrorHelper = require('../exceptions/api-error-helper');
 
 class MailService {
   constructor() {

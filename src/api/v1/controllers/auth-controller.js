@@ -1,8 +1,8 @@
 const { validationResult } = require('express-validator');
-const ApiErrorHelper = require('../helpers/api-error-helper');
+const ApiErrorHelper = require('../exceptions/api-error-helper');
 const utils = require('../utils/utils');
 const authService = require('../services/auth-service');
-const statusCodesHelper = require('../helpers/status-codes-helper');
+const statusCodesHelper = require('../utils/status-codes-helper');
 
 // eslint-disable-next-line no-magic-numbers
 const thirtyDays = 30 * 24 * 60 * 60 * 1000;

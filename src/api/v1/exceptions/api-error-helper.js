@@ -1,4 +1,4 @@
-const statusCodesHelper = require('./status-codes-helper');
+const statusCodesHelper = require('../utils/status-codes-helper');
 
 module.exports = class ApiErrorHelper extends Error {
   status;

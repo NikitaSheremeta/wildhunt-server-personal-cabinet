@@ -1,5 +1,5 @@
-const ApiErrorHelper = require('../helpers/api-error-helper');
-const statusCodesHelper = require('../helpers/status-codes-helper');
+const ApiErrorHelper = require('../exceptions/api-error-helper');
+const statusCodesHelper = require('../utils/status-codes-helper');
 
 // eslint-disable-next-line no-unused-vars
 module.exports = function (err, req, res, next) {

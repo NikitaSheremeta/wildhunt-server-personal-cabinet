@@ -1,5 +1,5 @@
 const userService = require('./user-service');
-const ApiErrorHelper = require('../helpers/api-error-helper');
+const ApiErrorHelper = require('../exceptions/api-error-helper');
 const bcrypt = require('bcrypt');
 const tokenService = require('./token-service');
 
