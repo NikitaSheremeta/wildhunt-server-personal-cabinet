@@ -1,9 +1,9 @@
-const ApiErrorHelper = require('../exceptions/api-error-helper');
+const ApiError = require('../exceptions/api-error');
 const statusCodesHelper = require('../utils/status-codes-helper');
 
 // eslint-disable-next-line no-unused-vars
 module.exports = function (err, req, res, next) {
-  if (err instanceof ApiErrorHelper) {
+  if (err instanceof ApiError) {
     return res.status(err.status).json({
       message: err.message,
       errors: err.errors

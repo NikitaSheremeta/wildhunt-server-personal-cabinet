@@ -1,4 +1,4 @@
-const ApiErrorHelper = require('../exceptions/api-error-helper');
+const ApiError = require('../exceptions/api-error');
 const tokenService = require('../services/token-service');
 
 module.exports = function (roles) {
@@ -7,19 +7,19 @@ module.exports = function (roles) {
       const authorizationHeader = req.headers.authorization;
 
       if (!authorizationHeader) {
-        return next(ApiErrorHelper.unauthorizedError());
+        return next(ApiError.unauthorizedError());
       }
 
       const [bearer, accessToken] = authorizationHeader.split(' ');
 
       if (bearer !== 'Bearer' || !accessToken) {
-        return next(ApiErrorHelper.unauthorizedError());
+        return next(ApiError.unauthorizedError());
       }
 
       const userData = tokenService.validateAccessToken(accessToken);
 
       if (!userData) {
-        return next(ApiErrorHelper.unauthorizedError());
+        return next(ApiError.unauthorizedError());
       }
 
       let hasRole = false;
@@ -31,12 +31,12 @@ module.exports = function (roles) {
       });
 
       if (!hasRole) {
-        return next(ApiErrorHelper.forbiddenError());
+        return next(ApiError.forbiddenError());
       }
 
       next();
     } catch (err) {
-      return next(ApiErrorHelper.unauthorizedError());
+      return next(ApiError.unauthorizedError());
     }
   };
 };

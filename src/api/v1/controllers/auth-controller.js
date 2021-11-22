@@ -1,5 +1,5 @@
 const { validationResult } = require('express-validator');
-const ApiErrorHelper = require('../exceptions/api-error-helper');
+const ApiError = require('../exceptions/api-error');
 const utils = require('../utils/utils');
 const authService = require('../services/auth-service');
 const statusCodesHelper = require('../utils/status-codes-helper');
@@ -14,7 +14,7 @@ class AuthController {
 
       if (!errors.isEmpty()) {
         return next(
-          ApiErrorHelper.badRequest(
+          ApiError.badRequest(
             'Ошибка валидации введеных данных -_-',
             errors.array()
           )
