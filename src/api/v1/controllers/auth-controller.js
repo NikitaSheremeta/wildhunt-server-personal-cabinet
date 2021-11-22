@@ -1,8 +1,8 @@
 const { validationResult } = require('express-validator');
 const ApiError = require('../exceptions/api-error');
-const utils = require('../utils/utils');
+const dateUtils = require('../utils/date-utils');
 const authService = require('../services/auth-service');
-const statusCodesHelper = require('../utils/status-codes-helper');
+const statusCodesUtils = require('../utils/status-codes-utils');
 
 // eslint-disable-next-line no-magic-numbers
 const thirtyDays = 30 * 24 * 60 * 60 * 1000;
@@ -25,7 +25,7 @@ class AuthController {
         userName: req.body.userName,
         email: req.body.email,
         birthDate: req.body.birthDate,
-        registrationDate: utils.getCurrentDate(),
+        registrationDate: dateUtils.getCurrentDate(),
         password: req.body.password
       };
 
@@ -67,7 +67,7 @@ class AuthController {
 
       res.clearCookie('refreshToken');
 
-      return res.json(statusCodesHelper.httpStatus.OK.code);
+      return res.json(statusCodesUtils.httpStatus.OK.code);
     } catch (err) {
       next(err);
     }

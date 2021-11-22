@@ -1,5 +1,5 @@
 const nodemailer = require('nodemailer');
-const statusCodesHelper = require('../utils/status-codes-helper');
+const statusCodesUtils = require('../utils/status-codes-utils');
 const ApiError = require('../exceptions/api-error');
 
 class MailService {
@@ -34,7 +34,7 @@ class MailService {
     } catch (err) {
       if (
         err.responseCode ===
-        statusCodesHelper.smtpStatus.MAILBOX_UNAVAILABLE.code
+        statusCodesUtils.smtpStatus.MAILBOX_UNAVAILABLE.code
       ) {
         throw ApiError.invalidMailbox(err.responseCode);
       }

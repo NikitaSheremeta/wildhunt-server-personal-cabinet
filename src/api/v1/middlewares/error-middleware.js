@@ -1,5 +1,5 @@
 const ApiError = require('../exceptions/api-error');
-const statusCodesHelper = require('../utils/status-codes-helper');
+const statusCodesUtils = require('../utils/status-codes-utils');
 
 // eslint-disable-next-line no-unused-vars
 module.exports = function (err, req, res, next) {
@@ -11,6 +11,6 @@ module.exports = function (err, req, res, next) {
   }
 
   return res
-    .status(statusCodesHelper.httpStatus.INTERNAL_SERVER_ERROR.code)
+    .status(statusCodesUtils.httpStatus.INTERNAL_SERVER_ERROR.code)
     .json({ message: err.message });
 };

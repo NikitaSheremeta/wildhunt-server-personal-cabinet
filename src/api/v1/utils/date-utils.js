@@ -1,4 +1,4 @@
-class Utils {
+class DateUtils {
   getCurrentDate() {
     const today = new Date();
     const YYYY = today.getFullYear();
@@ -12,4 +12,4 @@ class Utils {
   }
 }
 
-module.exports = new Utils();
+module.exports = new DateUtils();

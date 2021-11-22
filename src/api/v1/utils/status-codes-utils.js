@@ -1,4 +1,4 @@
-class StatusCodesHelper {
+class StatusCodesUtils {
   get httpStatus() {
     return {
       OK: {
@@ -42,4 +42,4 @@ class StatusCodesHelper {
   }
 }
 
-module.exports = new StatusCodesHelper();
+module.exports = new StatusCodesUtils();
