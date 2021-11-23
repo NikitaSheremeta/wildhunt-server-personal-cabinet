@@ -102,7 +102,7 @@ class UserService {
 
   async getUserSiteRoles(id) {
     const sql =
-      'SELECT s.value ' +
+      'SELECT s.identifier ' +
       'FROM user_roles AS u ' +
       'INNER JOIN site_roles AS s ' +
       'WHERE u.site_role_id = s.id ' +

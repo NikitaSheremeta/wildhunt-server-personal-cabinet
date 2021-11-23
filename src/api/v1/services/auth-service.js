@@ -2,6 +2,7 @@ const userService = require('./user-service');
 const ApiError = require('../exceptions/api-error');
 const bcrypt = require('bcrypt');
 const tokenService = require('./token-service');
+const guardUtils = require('../utils/guard-utils');
 
 const salt = 10;
 
@@ -24,7 +25,7 @@ class AuthService {
     return await tokenService.generateAndSaveTokens({
       id: user.insertId,
       userName: userInputData.userName,
-      roles: ['User']
+      roles: [guardUtils.siteRoles.USER]
     });
   }
 
@@ -56,7 +57,7 @@ class AuthService {
     return await tokenService.generateAndSaveTokens({
       id: user.id,
       userName: user.user_name,
-      roles: roles.map((role) => role.value)
+      roles: roles.map((role) => role.identifier)
     });
   }
 
@@ -105,7 +106,7 @@ class AuthService {
     return await tokenService.generateAndSaveTokens({
       id: user.id,
       userName: user.user_name,
-      roles: roles.map((role) => role.value)
+      roles: roles.map((role) => role.identifier)
     });
   }
 }

@@ -11,7 +11,7 @@ class GuardUtils {
     };
   }
 
-  get scopes() {
+  get apiAccess() {
     return {
       users: [this.siteRoles.ADMIN]
     };
