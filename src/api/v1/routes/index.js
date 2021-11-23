@@ -16,7 +16,7 @@ router.post(
   body('email').isEmail(),
   body('birthDate').isDate(),
   body('password').isLength({
-    min: 4,
+    min: 8,
     max: 32
   }),
   authController.registration

@@ -1,4 +1,5 @@
-const userService = require('./user-service');
+const userData = require('../../../data/user-data');
+const tokenData = require('../../../data/token-data');
 const ApiError = require('../exceptions/api-error');
 const bcrypt = require('bcrypt');
 const tokenService = require('./token-service');
@@ -11,7 +12,7 @@ const salt = 10;
 
 class AuthService {
   async userRegistration(userInputData) {
-    const candidate = await userService.getUserByEmail(userInputData.email);
+    const candidate = await userData.getUserByEmail(userInputData.email);
 
     if (candidate) {
       throw ApiError.badRequest(
@@ -21,7 +22,7 @@ class AuthService {
 
     userInputData.password = await bcrypt.hash(userInputData.password, salt);
 
-    const user = await userService.createUser(userInputData);
+    const user = await userData.createUser(userInputData);
 
     const activationLink = uuid.v4();
 
@@ -30,7 +31,7 @@ class AuthService {
       `${process.env.API_URL}/api/v1/auth/activate/${activationLink}`
     );
 
-    await userService.recordUserActivationLink(user.insertId, activationLink);
+    await userData.recordUserActivationLink(user.insertId, activationLink);
 
     return await tokenService.generateAndSaveTokens({
       id: user.insertId,
@@ -43,9 +44,9 @@ class AuthService {
     let user;
 
     if (login.indexOf('@') > -1) {
-      user = await userService.getUserByEmail(login);
+      user = await userData.getUserByEmail(login);
     } else {
-      user = await userService.getUserByName(login);
+      user = await userData.getUserByName(login);
     }
 
     if (!user) {
@@ -58,7 +59,7 @@ class AuthService {
       throw ApiError.badRequest('Неверный лоин или пароль T_T');
     }
 
-    const roles = await userService.getUserSiteRoles(user.id);
+    const roles = await userData.getUserSiteRoles(user.id);
 
     if (!roles) {
       throw ApiError.badRequest('Роли не обнаружены х_X');
@@ -72,11 +73,11 @@ class AuthService {
   }
 
   async userLogout(refreshToken) {
-    await tokenService.removeToken(refreshToken);
+    await tokenData.deleteToken(refreshToken);
   }
 
   async userActivation(activationLink) {
-    const user = await userService.checkUserActivationLink(activationLink);
+    const user = await userData.checkUserActivationLink(activationLink);
 
     if (!user) {
       throw ApiError.badRequest('Ссылка Недействительна o_O');
@@ -86,7 +87,7 @@ class AuthService {
       return false;
     }
 
-    await userService.updateUserActivationStatus(user.id);
+    await userData.updateUserActivationStatus(user.id);
   }
 
   async userRefreshToken(refreshToken) {
@@ -95,19 +96,19 @@ class AuthService {
     }
 
     const userData = tokenService.validateRefreshToken(refreshToken);
-    const tokenFromDB = await tokenService.findToken(refreshToken);
+    const tokenFromDB = await tokenData.findToken(refreshToken);
 
     if (!userData || !tokenFromDB) {
       throw ApiError.unauthorizedError();
     }
 
-    const user = await userService.getUserById(userData.id);
+    const user = await userData.getUserById(userData.id);
 
     if (!user) {
       throw ApiError.badRequest('Пользователь не найден :/');
     }
 
-    const roles = await userService.getUserSiteRoles(userData.id);
+    const roles = await userData.getUserSiteRoles(userData.id);
 
     if (!roles) {
       throw ApiError.badRequest('Роли не обнаружены х_X');

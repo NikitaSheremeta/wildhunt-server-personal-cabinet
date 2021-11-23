@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const connection = require('../../config/connection');
+const tokenData = require('../../../data/token-data');
 
 class TokenService {
   generateTokens(payload) {
@@ -33,43 +33,13 @@ class TokenService {
   }
 
   async saveToken(userId, refreshToken) {
-    const [tokenData] = await connection.execute(
-      'SELECT * FROM tokens WHERE user_id = ?',
-      [userId],
-      (err) => console.error(err)
-    );
+    const token = await tokenData.getTokenByUserId(userId);
 
-    if (tokenData.length > 0) {
-      return connection.execute(
-        'UPDATE tokens SET refresh_token = ? WHERE user_id = ?',
-        [refreshToken, userId],
-        (err) => console.error(err)
-      );
+    if (token) {
+      return await tokenData.updateToken(refreshToken, userId);
     }
 
-    await connection.execute(
-      'INSERT INTO tokens (user_id, refresh_token) VALUES (?, ?)',
-      [userId, refreshToken],
-      (err) => console.error(err)
-    );
-  }
-
-  async removeToken(refreshToken) {
-    await connection.execute(
-      'DELETE FROM tokens WHERE refresh_token = ?',
-      [refreshToken],
-      (err) => console.error(err)
-    );
-  }
-
-  async findToken(refreshToken) {
-    const [tokenData] = await connection.execute(
-      'SELECT * FROM tokens WHERE refresh_token = ?',
-      [refreshToken],
-      (err) => console.error(err)
-    );
-
-    return tokenData.length > 0 ? tokenData[0] : false;
+    await tokenData.createToken(userId, refreshToken);
   }
 
   async generateAndSaveTokens(userData) {

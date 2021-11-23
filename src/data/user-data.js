@@ -1,6 +1,6 @@
-const connection = require('../../config/connection');
+const connection = require('../config/connection');
 
-class UserService {
+class UserData {
   async getUserById(id) {
     const [user] = await connection.execute(
       'SELECT * FROM users WHERE id = ?',
@@ -107,4 +107,4 @@ class UserService {
   }
 }
 
-module.exports = new UserService();
+module.exports = new UserData();
