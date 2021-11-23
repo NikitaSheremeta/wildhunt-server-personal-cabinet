@@ -4,6 +4,9 @@ const bcrypt = require('bcrypt');
 const tokenService = require('./token-service');
 const guardUtils = require('../utils/guard-utils');
 
+const uuid = require('uuid');
+const mailService = require('./mail-service');
+
 const salt = 10;
 
 class AuthService {
@@ -20,7 +23,14 @@ class AuthService {
 
     const user = await userService.createUser(userInputData);
 
-    await userService.confirmUser(userInputData.email, user.insertId);
+    const activationLink = uuid.v4();
+
+    await mailService.sendActivationMail(
+      userInputData.email,
+      `${process.env.API_URL}/api/v1/auth/activate/${activationLink}`
+    );
+
+    await userService.recordUserActivationLink(user.insertId, activationLink);
 
     return await tokenService.generateAndSaveTokens({
       id: user.insertId,

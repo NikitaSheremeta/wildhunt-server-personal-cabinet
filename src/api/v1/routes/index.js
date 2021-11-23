@@ -28,7 +28,7 @@ router.get('/auth/refresh', authController.refresh);
 
 router.get(
   '/users/',
-  authMiddleware(guardUtils.apiAccess.users),
+  authMiddleware(guardUtils.routeAccess.users),
   userController.getUsers
 );
 

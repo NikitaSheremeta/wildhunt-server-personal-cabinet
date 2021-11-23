@@ -11,7 +11,7 @@ class GuardUtils {
     };
   }
 
-  get apiAccess() {
+  get routeAccess() {
     return {
       users: [this.siteRoles.ADMIN]
     };

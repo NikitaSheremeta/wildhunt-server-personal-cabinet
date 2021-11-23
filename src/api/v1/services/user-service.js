@@ -1,6 +1,4 @@
-const uuid = require('uuid');
 const connection = require('../../config/connection');
-const mailService = require('./mail-service');
 
 class UserService {
   async getUserById(id) {
@@ -62,14 +60,7 @@ class UserService {
     return user;
   }
 
-  async confirmUser(email, userId) {
-    const activationLink = uuid.v4();
-
-    await mailService.sendActivationMail(
-      email,
-      `${process.env.API_URL}/api/v1/auth/activate/${activationLink}`
-    );
-
+  async recordUserActivationLink(userId, activationLink) {
     await connection.execute(
       'INSERT INTO activation_links (user_id, link) VALUES (?, ?)',
       [userId, activationLink],
