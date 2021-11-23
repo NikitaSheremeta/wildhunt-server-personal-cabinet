@@ -2,7 +2,7 @@
   "name": "minecraft",
   "version": "1.0.0",
   "description": "Back-end side",
-  "main": "src/api/v1/server.js",
+  "main": "src/api/v1/index.js",
   "scripts": {
     "prepare": "husky install",
     "start": "npm run watch-node",
