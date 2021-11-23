@@ -1,6 +1,5 @@
 const { validationResult } = require('express-validator');
 const ApiError = require('../exceptions/api-error');
-const dateUtils = require('../utils/date-utils');
 const authService = require('../services/auth-service');
 const statusCodesUtils = require('../utils/status-codes-utils');
 
@@ -25,7 +24,6 @@ class AuthController {
         userName: req.body.userName,
         email: req.body.email,
         birthDate: req.body.birthDate,
-        registrationDate: dateUtils.getCurrentDate(),
         password: req.body.password
       };
 

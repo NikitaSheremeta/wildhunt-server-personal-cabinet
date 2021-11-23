@@ -43,12 +43,11 @@ class UserService {
 
   async createUser(userData) {
     const [user] = await connection.execute(
-      'INSERT INTO users (user_name, email, birth_date, registration_date, password) VALUES (?, ?, ?, ?, ?)',
+      'INSERT INTO users (user_name, email, birth_date, password) VALUES (?, ?, ?, ?)',
       [
         userData.userName,
         userData.email,
         userData.birthDate,
-        userData.registrationDate,
         userData.password
       ],
       (err) => console.error(err)

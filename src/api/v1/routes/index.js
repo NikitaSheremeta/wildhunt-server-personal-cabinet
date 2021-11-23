@@ -1,8 +1,9 @@
 const express = require('express');
 const { body } = require('express-validator');
 const authController = require('../controllers/auth-controller');
+const authMiddleware = require('../middlewares/auth-middleware');
+const guardUtils = require('../utils/guard-utils');
 const userController = require('../controllers/user-controller');
-const permissionMiddleware = require('../middlewares/permission-middleware');
 
 const router = express.Router();
 
@@ -27,7 +28,7 @@ router.get('/auth/refresh', authController.refresh);
 
 router.get(
   '/users/',
-  permissionMiddleware(['Administrator']),
+  authMiddleware(guardUtils.scopes.users),
   userController.getUsers
 );
 
