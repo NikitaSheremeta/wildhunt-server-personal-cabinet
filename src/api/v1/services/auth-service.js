@@ -1,5 +1,5 @@
-const userData = require('../../../data/user-data');
-const tokenData = require('../../../data/token-data');
+const userData = require('../../../infrastructure/data/user-data');
+const tokenData = require('../../../infrastructure/data/token-data');
 const ApiError = require('../exceptions/api-error');
 const bcrypt = require('bcrypt');
 const tokenService = require('./token-service');
@@ -12,9 +12,16 @@ const salt = 10;
 
 class AuthService {
   async userRegistration(userInputData) {
-    const candidate = await userData.getUserByEmail(userInputData.email);
+    const checkUserName = await userData.getUserByName(userInputData.userName);
+    const checkEmail = await userData.getUserByEmail(userInputData.email);
 
-    if (candidate) {
+    if (checkUserName) {
+      throw ApiError.badRequest(
+        'Пользователь с таким никнеймом уже зарегистрирован x_x'
+      );
+    }
+
+    if (checkEmail) {
       throw ApiError.badRequest(
         'Пользователь с таким почтовым адресом уже зарегистрирован >_<'
       );
@@ -31,7 +38,7 @@ class AuthService {
       `${process.env.API_URL}/api/v1/auth/activate/${activationLink}`
     );
 
-    await userData.recordUserActivationLink(user.insertId, activationLink);
+    await userData.createUserActivationLink(user.insertId, activationLink);
 
     return await tokenService.generateAndSaveTokens({
       id: user.insertId,

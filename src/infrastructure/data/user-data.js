@@ -11,20 +11,20 @@ class UserData {
     return user.length > 0 ? user[0] : false;
   }
 
-  async getUserByEmail(email) {
+  async getUserByName(name) {
     const [user] = await connection.execute(
-      'SELECT * FROM users WHERE email = ?',
-      [email],
+      'SELECT * FROM users WHERE user_name = ?',
+      [name],
       (err) => console.error(err)
     );
 
     return user.length > 0 ? user[0] : false;
   }
 
-  async getUserByName(name) {
+  async getUserByEmail(email) {
     const [user] = await connection.execute(
-      'SELECT * FROM users WHERE user_name = ?',
-      [name],
+      'SELECT * FROM users WHERE email = ?',
+      [email],
       (err) => console.error(err)
     );
 
@@ -60,7 +60,7 @@ class UserData {
     return user;
   }
 
-  async recordUserActivationLink(userId, activationLink) {
+  async createUserActivationLink(userId, activationLink) {
     await connection.execute(
       'INSERT INTO activation_links (user_id, link) VALUES (?, ?)',
       [userId, activationLink],
