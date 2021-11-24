@@ -34,5 +34,3 @@ build/*
 # Nuxt generate
 dist
 
-# DateUtils files
-src/api/v1/utils/*.js

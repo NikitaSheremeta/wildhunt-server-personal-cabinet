@@ -1,5 +1,3 @@
-const { validationResult } = require('express-validator');
-const ApiError = require('../exceptions/api-error');
 const authService = require('../services/auth-service');
 const statusCodesUtils = require('../utils/status-codes-utils');
 
@@ -9,25 +7,7 @@ const thirtyDays = 30 * 24 * 60 * 60 * 1000;
 class AuthController {
   async registration(req, res, next) {
     try {
-      const errors = validationResult(req);
-
-      if (!errors.isEmpty()) {
-        return next(
-          ApiError.badRequest(
-            'Ошибка валидации введеных данных -_-',
-            errors.array()
-          )
-        );
-      }
-
-      const userInputData = {
-        userName: req.body.userName,
-        email: req.body.email,
-        birthDate: req.body.birthDate,
-        password: req.body.password
-      };
-
-      const userData = await authService.userRegistration(userInputData);
+      const userData = await authService.userRegistration(req.body);
 
       res.cookie('refreshToken', userData.refreshToken, {
         maxAge: thirtyDays,
