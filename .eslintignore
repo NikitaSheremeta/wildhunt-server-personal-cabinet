@@ -34,3 +34,6 @@ build/*
 # Nuxt generate
 dist
 
+# HTML templates
+src/api/v1/templates/*.html
+

@@ -1,4 +1,4 @@
-const connection = require('../config/connection');
+const connection = require('../config/mysql-connection');
 
 class UserData {
   async getUserById(id) {
