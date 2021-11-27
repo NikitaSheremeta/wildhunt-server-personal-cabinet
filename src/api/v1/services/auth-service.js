@@ -4,11 +4,15 @@ const ApiError = require('../exceptions/api-error');
 const bcrypt = require('bcrypt');
 const tokenService = require('./token-service');
 const guardUtils = require('../utils/guard-utils');
+const dateUtils = require('../utils/date-utils');
 
 const uuid = require('uuid');
 const mailService = require('./mail-service');
 
-const salt = 10;
+const magicNumbers = {
+  salt: 10,
+  fiveMinutes: 300
+};
 
 class AuthService {
   async userRegistration(userInputData) {
@@ -27,7 +31,10 @@ class AuthService {
       );
     }
 
-    userInputData.password = await bcrypt.hash(userInputData.password, salt);
+    userInputData.password = await bcrypt.hash(
+      userInputData.password,
+      magicNumbers.salt
+    );
 
     const user = await userData.createUser(userInputData);
 
@@ -95,6 +102,41 @@ class AuthService {
     }
 
     await userData.updateUserActivationStatus(user.id);
+  }
+
+  async userForgotPassword(email) {
+    const user = await userData.getUserByEmail(email);
+
+    if (!user) {
+      throw ApiError.badRequest(
+        'Пользователь с таким почтовым адресом не найден -_-'
+      );
+    }
+
+    const resetLink = uuid.v4();
+
+    const resetData = await userData.checkUserResetPassword(user.id);
+
+    if (resetData) {
+      const resetDate = dateUtils.convertIsoToMilliseconds(
+        resetData.reset_date
+      );
+
+      const differenceInTime = dateUtils.getDifferenceInTime(resetDate);
+
+      if (differenceInTime < magicNumbers.fiveMinutes) {
+        throw ApiError.badRequest('Повторите попытку позже');
+      }
+
+      await userData.updateUserResetLink(resetLink, user.id);
+    } else {
+      await userData.createUserResetLink(user.id, resetLink);
+    }
+
+    await mailService.sendResetMail(
+      email,
+      `${process.env.API_URL}/api/v1/auth/reset/${resetLink}`
+    );
   }
 
   async userRefreshToken(refreshToken) {

@@ -2,7 +2,6 @@ const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
 const Handlebars = require('handlebars');
-const statusCodesUtils = require('../utils/status-codes-utils');
 const ApiError = require('../exceptions/api-error');
 
 class MailService {
@@ -52,13 +51,29 @@ class MailService {
         html: activationTemplate
       });
     } catch (err) {
-      if (
-        err.responseCode ===
-        statusCodesUtils.smtpStatus.MAILBOX_UNAVAILABLE.code
-      ) {
-        throw ApiError.invalidMailbox(err.responseCode);
-      }
+      throw ApiError.badRequest(
+        'Ошибка при отпраке письма, попробуйте позже :('
+      );
+    }
+  }
 
+  async sendResetMail(to, link) {
+    try {
+      await this.transporter.sendMail({
+        from: process.env.SMTP_USER,
+        to,
+        subject: 'Сброс пароля Minecraft Wild Hunt',
+        text: '',
+        html: `
+          <div>
+            <h1>
+              Для сброса пароля перейдите по ссылке ниже
+            </h1>
+            <a href="${link}">${link}</a>
+          </div>
+        `
+      });
+    } catch (err) {
       throw ApiError.badRequest(
         'Ошибка при отпраке письма, попробуйте позже :('
       );

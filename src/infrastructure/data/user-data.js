@@ -68,6 +68,32 @@ class UserData {
     );
   }
 
+  async createUserResetLink(userId, resetLink) {
+    await connection.execute(
+      'INSERT INTO reset_links (user_id, link) VALUES (?, ?)',
+      [userId, resetLink],
+      (err) => console.error(err)
+    );
+  }
+
+  async updateUserResetLink(resetLink, userId) {
+    await connection.execute(
+      'UPDATE reset_links SET reset_date = now(), link = ? WHERE user_id = ?',
+      [resetLink, userId],
+      (err) => console.error(err)
+    );
+  }
+
+  async checkUserResetPassword(userId) {
+    const [resetPassword] = await connection.execute(
+      'SELECT * FROM reset_links WHERE user_id = ?',
+      [userId],
+      (err) => console.error(err)
+    );
+
+    return resetPassword.length > 0 ? resetPassword[0] : false;
+  }
+
   async checkUserActivationLink(activationLink) {
     const sql =
       'SELECT u.id, u.is_activation_status ' +

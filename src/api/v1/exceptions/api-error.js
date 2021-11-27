@@ -31,12 +31,4 @@ module.exports = class ApiError extends Error {
       'Пользователю отказано в доступе к запрашиваемому ресурсу'
     );
   }
-
-  // Only for mail.ru addresses
-  static invalidMailbox() {
-    return new ApiError(
-      statusCodesUtils.smtpStatus.MAILBOX_UNAVAILABLE.code,
-      `Почтовый адрес не найден X_X`
-    );
-  }
 };

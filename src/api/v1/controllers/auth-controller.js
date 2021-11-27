@@ -61,6 +61,23 @@ class AuthController {
     }
   }
 
+  async forgotPassword(req, res, next) {
+    try {
+      await authService.userForgotPassword(req.body.email);
+
+      return res.json(statusCodesUtils.httpStatus.OK.code);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  // async resetPassword(req, res, next) {
+  //   try {
+  //   } catch (err) {
+  //     next(err);
+  //   }
+  // }
+
   async refresh(req, res, next) {
     try {
       const { refreshToken } = req.cookies;

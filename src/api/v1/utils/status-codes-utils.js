@@ -31,15 +31,6 @@ class StatusCodesUtils {
       }
     };
   }
-
-  get smtpStatus() {
-    return {
-      MAILBOX_UNAVAILABLE: {
-        code: 550,
-        message: 'MAILBOX_UNAVAILABLE'
-      }
-    };
-  }
 }
 
 module.exports = new StatusCodesUtils();
