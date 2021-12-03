@@ -19,14 +19,14 @@ class DateUtils {
     return new Date(timestamp).getTime() / magicNumbers.oneSecond;
   }
 
-  getDifferenceInTime(date) {
+  getDifferenceInTime(date, time) {
     const currentDate = Math.round(Date.now() / magicNumbers.oneSecond);
 
     // TODO: remove after Docker setup
     const timeOffset =
       Math.abs(new Date().getTimezoneOffset()) * magicNumbers.oneMinute;
 
-    return currentDate - (date + timeOffset);
+    return currentDate - (date + timeOffset) < time;
   }
 }
 

@@ -44,6 +44,32 @@ class TokenData {
 
     return token.length > 0 ? token[0] : false;
   }
+
+  async getResetTokenByUserId(userId) {
+    const [token] = await connection.execute(
+      'SELECT * FROM reset_tokens WHERE user_id = ?',
+      [userId],
+      (err) => console.error(err)
+    );
+
+    return token.length > 0 ? token[0] : false;
+  }
+
+  async createResetToken(userId, resetToken) {
+    await connection.execute(
+      'INSERT INTO reset_tokens (user_id, link) VALUES (?, ?)',
+      [userId, resetToken],
+      (err) => console.error(err)
+    );
+  }
+
+  async updateResetToken(userId, resetToken) {
+    await connection.execute(
+      'UPDATE reset_tokens SET reset_date = now(), link = ? WHERE user_id = ?',
+      [resetToken, userId],
+      (err) => console.error(err)
+    );
+  }
 }
 
 module.exports = new TokenData();

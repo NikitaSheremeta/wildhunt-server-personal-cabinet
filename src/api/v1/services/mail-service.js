@@ -62,7 +62,7 @@ class MailService {
       await this.transporter.sendMail({
         from: process.env.SMTP_USER,
         to,
-        subject: 'Сброс пароля Minecraft Wild Hunt',
+        subject: 'Сброс пароля учетной записи Minecraft Wild Hunt',
         text: '',
         html: `
           <div>

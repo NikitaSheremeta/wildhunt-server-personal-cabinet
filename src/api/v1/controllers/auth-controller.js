@@ -65,18 +65,22 @@ class AuthController {
     try {
       await authService.userForgotPassword(req.body.email);
 
-      return res.json(statusCodesUtils.httpStatus.OK.code);
+      return res.json({
+        status: statusCodesUtils.httpStatus.OK.code,
+        message: 'Инструкция по сбросу пароля отправлена на ваш почтовый ящик'
+      });
     } catch (err) {
       next(err);
     }
   }
 
-  // async resetPassword(req, res, next) {
-  //   try {
-  //   } catch (err) {
-  //     next(err);
-  //   }
-  // }
+  async resetPassword(req, res, next) {
+    try {
+      await authService.userResetPassword(req.params.token);
+    } catch (err) {
+      next(err);
+    }
+  }
 
   async refresh(req, res, next) {
     try {
