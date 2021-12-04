@@ -1,7 +1,5 @@
 const nodemailer = require('nodemailer');
-const fs = require('fs');
-const path = require('path');
-const Handlebars = require('handlebars');
+const utils = require('../utils/utils');
 const ApiError = require('../exceptions/api-error');
 
 class MailService {
@@ -17,31 +15,12 @@ class MailService {
     });
   }
 
-  prepareActivationTemplate(link) {
-    const filepath = path.join(
-      __dirname,
-      '..',
-      'templates',
-      'activation-mail-template.html'
-    );
-
-    return new Promise((resolve, reject) => {
-      fs.readFile(filepath, 'utf-8', (error, content) => {
-        if (error) {
-          reject(error);
-        }
-
-        const handlebarsTemplate = Handlebars.compile(content);
-        const template = handlebarsTemplate({ link });
-
-        resolve(template);
-      });
-    });
-  }
-
   async sendActivationMail(to, link) {
     try {
-      const activationTemplate = await this.prepareActivationTemplate(link);
+      const activationTemplate = await utils.prepareMailTemplate(
+        'activation-mail-template',
+        { link }
+      );
 
       await this.transporter.sendMail({
         from: process.env.SMTP_USER,
@@ -70,6 +49,29 @@ class MailService {
               Для сброса пароля перейдите по ссылке ниже
             </h1>
             <a href="${link}">${link}</a>
+          </div>
+        `
+      });
+    } catch (err) {
+      throw ApiError.badRequest(
+        'Ошибка при отпраке письма, возможно, почтовый ящик не существет :('
+      );
+    }
+  }
+
+  async sendNewPasswordMail(to, password) {
+    try {
+      await this.transporter.sendMail({
+        from: process.env.SMTP_USER,
+        to,
+        subject: 'Новый пароль для учетной записи Minecraft Wild Hunt',
+        text: '',
+        html: `
+          <div>
+            <h1>
+              Ваш новый пароль, вот, держите:
+            </h1>
+            <p>${password}</p>
           </div>
         `
       });

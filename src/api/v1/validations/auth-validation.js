@@ -8,7 +8,7 @@ const magicNumbers = {
   },
   password: {
     minLength: 8,
-    maxLength: 32
+    maxLength: 24
   }
 };
 

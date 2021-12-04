@@ -40,6 +40,14 @@ class TokenService {
     }
   }
 
+  validateResetToken(token) {
+    try {
+      return jwt.verify(token, process.env.JWT_RESET_PASSWORD_SECRET);
+    } catch (err) {
+      return null;
+    }
+  }
+
   async saveRefreshToken(userId, refreshToken) {
     const token = await tokenData.getRefreshTokenByUserId(userId);
 
@@ -48,14 +56,6 @@ class TokenService {
     }
 
     await tokenData.createRefreshToken(userId, refreshToken);
-  }
-
-  async generateAndSaveRefreshTokens(userData) {
-    const tokens = this.generateAuthTokens(userData);
-
-    await this.saveRefreshToken(userData.id, tokens.refreshToken);
-
-    return tokens;
   }
 
   async saveResetToken(userId, resetToken) {
@@ -81,6 +81,14 @@ class TokenService {
     }
 
     await tokenData.createResetToken(userId, resetToken);
+  }
+
+  async generateAndSaveRefreshTokens(userData) {
+    const tokens = this.generateAuthTokens(userData);
+
+    await this.saveRefreshToken(userData.id, tokens.refreshToken);
+
+    return tokens;
   }
 
   async generateAndSaveResetToken(userData) {

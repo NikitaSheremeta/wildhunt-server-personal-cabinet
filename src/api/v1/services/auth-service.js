@@ -4,9 +4,11 @@ const ApiError = require('../exceptions/api-error');
 const bcrypt = require('bcrypt');
 const tokenService = require('./token-service');
 const guardUtils = require('../utils/guard-utils');
-
 const uuid = require('uuid');
 const mailService = require('./mail-service');
+const utils = require('../utils/utils');
+
+const salt = 10;
 
 class AuthService {
   async userRegistration(userInputData) {
@@ -34,8 +36,6 @@ class AuthService {
       userInputData.email,
       `${process.env.API_URL}/api/v1/auth/activate/${activationLink}`
     );
-
-    const salt = 10;
 
     userInputData.password = await bcrypt.hash(userInputData.password, salt);
 
@@ -87,7 +87,7 @@ class AuthService {
   }
 
   async userActivation(activationLink) {
-    const user = await userData.checkUserActivationLink(activationLink);
+    const user = await userData.getUserByActivationLink(activationLink);
 
     if (!user) {
       throw ApiError.badRequest('Ссылка Недействительна o_O');
@@ -117,10 +117,31 @@ class AuthService {
       email,
       `${process.env.API_URL}/api/v1/auth/reset/${resetToken}`
     );
+
+    return {
+      message: 'Инструкция по сбросу пароля отправлена на ваш почтовый ящик'
+    };
   }
 
-  async userResetPassword() {
-    console.log();
+  async userResetPassword(resetToken) {
+    const mailToken = tokenService.validateResetToken(resetToken);
+
+    if (!mailToken) {
+      throw ApiError.badRequest('Срок действия ссылки истек x_X');
+    }
+
+    const user = await userData.getUserById(mailToken.id);
+
+    if (!user) {
+      throw ApiError.badRequest('Пользователь не найден...');
+    }
+
+    const newPassword = utils.generatePassword();
+
+    const newHashPassword = await bcrypt.hash(newPassword, salt);
+
+    await userData.updateUserPassword(mailToken.id, newHashPassword);
+    await mailService.sendNewPasswordMail(user.email, newPassword);
   }
 
   async userRefreshToken(refreshToken) {

@@ -61,12 +61,9 @@ class AuthController {
 
   async forgotPassword(req, res, next) {
     try {
-      await authService.userForgotPassword(req.body.email);
+      const userData = await authService.userForgotPassword(req.body.email);
 
-      return res.json({
-        status: statusCodesUtils.httpStatus.OK.code,
-        message: 'Инструкция по сбросу пароля отправлена на ваш почтовый ящик'
-      });
+      return res.json(userData);
     } catch (err) {
       next(err);
     }
@@ -75,6 +72,8 @@ class AuthController {
   async resetPassword(req, res, next) {
     try {
       await authService.userResetPassword(req.params.token);
+
+      return res.redirect(process.env.API_URL);
     } catch (err) {
       next(err);
     }
