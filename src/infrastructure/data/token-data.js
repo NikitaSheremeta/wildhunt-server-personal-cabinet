@@ -1,6 +1,8 @@
 const connection = require('../config/mysql-connection');
 
 class TokenData {
+  // SELECT
+
   async getRefreshTokenByUserId(userId) {
     const [token] = await connection.execute(
       'SELECT * FROM refresh_tokens WHERE user_id = ?',
@@ -9,30 +11,6 @@ class TokenData {
     );
 
     return token.length > 0 ? token[0] : false;
-  }
-
-  async createRefreshToken(userId, refreshToken) {
-    await connection.execute(
-      'INSERT INTO refresh_tokens (user_id, token) VALUES (?, ?)',
-      [userId, refreshToken],
-      (err) => console.error(err)
-    );
-  }
-
-  async updateRefreshToken(userId, refreshToken) {
-    connection.execute(
-      'UPDATE refresh_tokens SET token = ? WHERE user_id = ?',
-      [refreshToken, userId],
-      (err) => console.error(err)
-    );
-  }
-
-  async deleteRefreshToken(refreshToken) {
-    await connection.execute(
-      'DELETE FROM refresh_tokens WHERE token = ?',
-      [refreshToken],
-      (err) => console.error(err)
-    );
   }
 
   async getResetTokenByUserId(userId) {
@@ -45,10 +23,30 @@ class TokenData {
     return token.length > 0 ? token[0] : false;
   }
 
+  // INSERT
+
+  async createRefreshToken(userId, refreshToken) {
+    await connection.execute(
+      'INSERT INTO refresh_tokens (user_id, token) VALUES (?, ?)',
+      [userId, refreshToken],
+      (err) => console.error(err)
+    );
+  }
+
   async createResetToken(userId, resetToken) {
     await connection.execute(
       'INSERT INTO reset_tokens (user_id, token) VALUES (?, ?)',
       [userId, resetToken],
+      (err) => console.error(err)
+    );
+  }
+
+  // UPDATE
+
+  async updateRefreshToken(userId, refreshToken) {
+    connection.execute(
+      'UPDATE refresh_tokens SET token = ? WHERE user_id = ?',
+      [refreshToken, userId],
       (err) => console.error(err)
     );
   }
@@ -61,9 +59,19 @@ class TokenData {
     );
   }
 
+  // DELETE
+
+  async deleteRefreshToken(refreshToken) {
+    await connection.execute(
+      'DELETE FROM refresh_tokens WHERE token = ?',
+      [refreshToken],
+      (err) => console.error(err)
+    );
+  }
+
   async deleteResetToken(resetToken) {
     await connection.execute(
-      'DELETE FROM reset_tokens WHERE refresh_token = ?',
+      'DELETE FROM reset_tokens WHERE token = ?',
       [resetToken],
       (err) => console.error(err)
     );

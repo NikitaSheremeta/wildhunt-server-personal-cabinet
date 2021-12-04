@@ -142,6 +142,7 @@ class AuthService {
 
     await userData.updateUserPassword(mailToken.id, newHashPassword);
     await mailService.sendNewPasswordMail(user.email, newPassword);
+    await tokenData.deleteResetToken(resetToken);
   }
 
   async userRefreshToken(refreshToken) {
