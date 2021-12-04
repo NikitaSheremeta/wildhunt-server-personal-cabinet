@@ -4,7 +4,7 @@ const dateUtils = require('../utils/date-utils');
 const ApiError = require('../exceptions/api-error');
 
 class TokenService {
-  generateTokens(payload) {
+  generateAuthTokens(payload) {
     const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, {
       expiresIn: '15m'
     });
@@ -40,20 +40,20 @@ class TokenService {
     }
   }
 
-  async saveToken(userId, refreshToken) {
-    const token = await tokenData.getTokenByUserId(userId);
+  async saveRefreshToken(userId, refreshToken) {
+    const token = await tokenData.getRefreshTokenByUserId(userId);
 
     if (token) {
-      return await tokenData.updateToken(refreshToken, userId);
+      return await tokenData.updateRefreshToken(userId, refreshToken);
     }
 
-    await tokenData.createToken(userId, refreshToken);
+    await tokenData.createRefreshToken(userId, refreshToken);
   }
 
-  async generateAndSaveTokens(userData) {
-    const tokens = this.generateTokens(userData);
+  async generateAndSaveRefreshTokens(userData) {
+    const tokens = this.generateAuthTokens(userData);
 
-    await this.saveToken(userData.id, tokens.refreshToken);
+    await this.saveRefreshToken(userData.id, tokens.refreshToken);
 
     return tokens;
   }
@@ -62,7 +62,7 @@ class TokenService {
     const resetTokenData = await tokenData.getResetTokenByUserId(userId);
 
     if (resetTokenData) {
-      const fiveMinutes = 300;
+      const fifteenMinutes = 900;
 
       const resetDate = dateUtils.convertIsoToMilliseconds(
         resetTokenData.reset_date
@@ -70,7 +70,7 @@ class TokenService {
 
       const isDifference = dateUtils.getDifferenceInTime(
         resetDate,
-        fiveMinutes
+        fifteenMinutes
       );
 
       if (isDifference) {

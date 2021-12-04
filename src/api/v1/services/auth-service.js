@@ -10,20 +10,30 @@ const mailService = require('./mail-service');
 
 class AuthService {
   async userRegistration(userInputData) {
-    const checkUserName = await userData.getUserByName(userInputData.userName);
-    const checkEmail = await userData.getUserByEmail(userInputData.email);
+    const userName = await userData.getUserByName(userInputData.userName);
+    const userEmail = await userData.getUserByEmail(userInputData.email);
 
-    if (checkUserName) {
+    if (userName) {
       throw ApiError.badRequest(
         'Пользователь с таким никнеймом уже зарегистрирован x_x'
       );
     }
 
-    if (checkEmail) {
+    if (userEmail) {
       throw ApiError.badRequest(
         'Пользователь с таким почтовым адресом уже зарегистрирован >_<'
       );
     }
+
+    const activationLink = uuid.v4();
+
+    // I guess if the mail obviously doesn't exist,
+    // there is no need to create a user.
+    // That is why sending a letter before creating a user to the database.
+    await mailService.sendActivationMail(
+      userInputData.email,
+      `${process.env.API_URL}/api/v1/auth/activate/${activationLink}`
+    );
 
     const salt = 10;
 
@@ -31,16 +41,9 @@ class AuthService {
 
     const user = await userData.createUser(userInputData);
 
-    const activationLink = uuid.v4();
-
-    await mailService.sendActivationMail(
-      userInputData.email,
-      `${process.env.API_URL}/api/v1/auth/activate/${activationLink}`
-    );
-
     await userData.createUserActivationLink(user.insertId, activationLink);
 
-    return await tokenService.generateAndSaveTokens({
+    return await tokenService.generateAndSaveRefreshTokens({
       id: user.insertId,
       userName: userInputData.userName,
       roles: [guardUtils.siteRoles.USER]
@@ -66,13 +69,13 @@ class AuthService {
       throw ApiError.badRequest('Неверный лоин или пароль T_T');
     }
 
-    const roles = await userData.getUserSiteRoles(user.id);
+    const roles = await userData.getUserRoles(user.id);
 
     if (!roles) {
       throw ApiError.badRequest('Роли не обнаружены х_X');
     }
 
-    return await tokenService.generateAndSaveTokens({
+    return await tokenService.generateAndSaveRefreshTokens({
       id: user.id,
       userName: user.user_name,
       roles: roles.map((role) => role.identifier)
@@ -80,7 +83,7 @@ class AuthService {
   }
 
   async userLogout(refreshToken) {
-    await tokenData.deleteToken(refreshToken);
+    await tokenData.deleteRefreshToken(refreshToken);
   }
 
   async userActivation(activationLink) {
@@ -125,26 +128,26 @@ class AuthService {
       throw ApiError.unauthorizedError();
     }
 
-    const userData = tokenService.validateRefreshToken(refreshToken);
-    const tokenFromDB = await tokenData.findToken(refreshToken);
+    const cookieToken = tokenService.validateRefreshToken(refreshToken);
+    const dbToken = await tokenData.getRefreshTokenByUserId(cookieToken.id);
 
-    if (!userData || !tokenFromDB) {
+    if (!cookieToken || !dbToken) {
       throw ApiError.unauthorizedError();
     }
 
-    const user = await userData.getUserById(userData.id);
+    const user = await userData.getUserById(dbToken.user_id);
 
     if (!user) {
       throw ApiError.badRequest('Пользователь не найден :/');
     }
 
-    const roles = await userData.getUserSiteRoles(userData.id);
+    const roles = await userData.getUserRoles(dbToken.user_id);
 
     if (!roles) {
       throw ApiError.badRequest('Роли не обнаружены х_X');
     }
 
-    return await tokenService.generateAndSaveTokens({
+    return await tokenService.generateAndSaveRefreshTokens({
       id: user.id,
       userName: user.user_name,
       roles: roles.map((role) => role.identifier)

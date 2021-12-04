@@ -1,30 +1,30 @@
 const connection = require('../config/mysql-connection');
 
 class UserData {
-  async getUserById(id) {
+  async getUserById(userId) {
     const [user] = await connection.execute(
       'SELECT * FROM users WHERE id = ?',
-      [id],
+      [userId],
       (err) => console.error(err)
     );
 
     return user.length > 0 ? user[0] : false;
   }
 
-  async getUserByName(name) {
+  async getUserByName(userName) {
     const [user] = await connection.execute(
       'SELECT * FROM users WHERE user_name = ?',
-      [name],
+      [userName],
       (err) => console.error(err)
     );
 
     return user.length > 0 ? user[0] : false;
   }
 
-  async getUserByEmail(email) {
+  async getUserByEmail(userEmail) {
     const [user] = await connection.execute(
       'SELECT * FROM users WHERE email = ?',
-      [email],
+      [userEmail],
       (err) => console.error(err)
     );
 
@@ -84,22 +84,27 @@ class UserData {
   }
 
   async updateUserActivationStatus(userId) {
-    await connection.execute(
-      'UPDATE users SET is_activation_status = ? WHERE users.id = ?',
-      [1, userId],
-      (err) => console.error(err)
+    const sql =
+      'UPDATE users, activation_links ' +
+      'SET users.is_activation_status = ?, ' +
+      'activation_links.activation_date = now() ' +
+      'WHERE users.id = ? ' +
+      'AND activation_links.user_id = ?';
+
+    await connection.execute(sql, [1, userId, userId], (err) =>
+      console.error(err)
     );
   }
 
-  async getUserSiteRoles(id) {
+  async getUserRoles(userId) {
     const sql =
       'SELECT s.identifier ' +
       'FROM user_roles AS u ' +
-      'INNER JOIN site_roles AS s ' +
+      'INNER JOIN roles AS s ' +
       'WHERE u.site_role_id = s.id ' +
       'AND u.user_id = ?';
 
-    const [roles] = await connection.execute(sql, [id], (err) =>
+    const [roles] = await connection.execute(sql, [userId], (err) =>
       console.error(err)
     );
 

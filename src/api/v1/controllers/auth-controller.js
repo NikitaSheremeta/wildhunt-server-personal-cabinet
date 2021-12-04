@@ -1,18 +1,19 @@
 const authService = require('../services/auth-service');
 const statusCodesUtils = require('../utils/status-codes-utils');
 
-// eslint-disable-next-line no-magic-numbers
-const thirtyDays = 30 * 24 * 60 * 60 * 1000;
+const cookieConfig = {
+  // eslint-disable-next-line no-magic-numbers
+  maxAge: 30 * 24 * 60 * 60 * 1000,
+  httpOnly: true
+  // secure: true
+};
 
 class AuthController {
   async registration(req, res, next) {
     try {
       const userData = await authService.userRegistration(req.body);
 
-      res.cookie('refreshToken', userData.refreshToken, {
-        maxAge: thirtyDays,
-        httpOnly: true
-      });
+      res.cookie('refreshToken', userData.refreshToken, cookieConfig);
 
       return res.json(userData);
     } catch (err) {
@@ -26,10 +27,7 @@ class AuthController {
 
       const userData = await authService.userLogin(login, password);
 
-      res.cookie('refreshToken', userData.refreshToken, {
-        maxAge: thirtyDays,
-        httpOnly: true
-      });
+      res.cookie('refreshToken', userData.refreshToken, cookieConfig);
 
       return res.json(userData);
     } catch (err) {
@@ -88,10 +86,7 @@ class AuthController {
 
       const userData = await authService.userRefreshToken(refreshToken);
 
-      res.cookie('refreshToken', userData.refreshToken, {
-        maxAge: thirtyDays,
-        httpOnly: true
-      });
+      res.cookie('refreshToken', userData.refreshToken, cookieConfig);
 
       return res.json(userData);
     } catch (err) {

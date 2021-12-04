@@ -28,12 +28,12 @@ module.exports = function () {
           email: Joi.string()
             .email({ tlds: { allow: false } })
             .required(),
+          birthDate: Joi.date().required(),
           password: Joi.string()
             .alphanum()
             .min(magicNumbers.password.minLength)
             .max(magicNumbers.password.maxLength)
-            .required(),
-          birthDate: Joi.date().required()
+            .required()
         });
 
         break;
