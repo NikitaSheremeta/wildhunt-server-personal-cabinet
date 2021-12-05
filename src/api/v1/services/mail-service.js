@@ -17,16 +17,14 @@ class MailService {
 
   async sendActivationMail(to, link) {
     try {
-      const activationTemplate = await utils.prepareMailTemplate(
-        'activation-mail-template',
-        { link }
-      );
+      const activationTemplate = await utils.prepareMailTemplate('activation', {
+        link
+      });
 
       await this.transporter.sendMail({
         from: process.env.SMTP_USER,
         to,
-        subject: 'Активация аккаунта Minecraft Wild Hunt',
-        text: '',
+        subject: 'Активация учетной записи Minecraft Wild Hunt',
         html: activationTemplate
       });
     } catch (err) {
@@ -38,19 +36,13 @@ class MailService {
 
   async sendResetMail(to, link) {
     try {
+      const resetTemplate = await utils.prepareMailTemplate('reset', { link });
+
       await this.transporter.sendMail({
         from: process.env.SMTP_USER,
         to,
-        subject: 'Сброс пароля учетной записи Minecraft Wild Hunt',
-        text: '',
-        html: `
-          <div>
-            <h1>
-              Для сброса пароля перейдите по ссылке ниже
-            </h1>
-            <a href="${link}">${link}</a>
-          </div>
-        `
+        subject: 'Восстановление пароля учетной записи Minecraft Wild Hunt',
+        html: resetTemplate
       });
     } catch (err) {
       throw ApiError.badRequest(
@@ -61,19 +53,16 @@ class MailService {
 
   async sendNewPasswordMail(to, password) {
     try {
+      const newPasswordTemplate = await utils.prepareMailTemplate(
+        'new-password',
+        { password }
+      );
+
       await this.transporter.sendMail({
         from: process.env.SMTP_USER,
         to,
         subject: 'Новый пароль для учетной записи Minecraft Wild Hunt',
-        text: '',
-        html: `
-          <div>
-            <h1>
-              Ваш новый пароль, вот, держите:
-            </h1>
-            <p>${password}</p>
-          </div>
-        `
+        html: newPasswordTemplate
       });
     } catch (err) {
       throw ApiError.badRequest(

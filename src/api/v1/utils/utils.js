@@ -17,12 +17,12 @@ class Utils {
     return password;
   }
 
-  prepareMailTemplate(templateName, templateData) {
+  async prepareMailTemplate(templateName, templateData) {
     const filepath = path.join(
       __dirname,
       '..',
       'templates',
-      `${templateName}.html`
+      `${templateName}-mail-template.html`
     );
 
     return new Promise((resolve, reject) => {
