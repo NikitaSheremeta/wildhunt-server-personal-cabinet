@@ -2,6 +2,7 @@ const dotenv = require('dotenv');
 const express = require('express');
 const cluster = require('cluster');
 const os = require('os');
+const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const routes = require('./routes');
@@ -15,11 +16,12 @@ const port = 5000;
 const serverPort = process.env.SERVER_PORT || port;
 const oneCpu = 1;
 
+app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors());
-app.use('/api/v1', routes);
 app.use(errorMiddleware);
+app.use('/api/v1', routes);
 
 const start = async function startServer() {
   if (cluster.isMaster) {

@@ -5,7 +5,8 @@
   "main": "src/api/v1/index.js",
   "scripts": {
     "prepare": "husky install",
-    "start": "npm run watch-node",
+    "start": "cross-env NODE_ENV=production node src/api/v1/index.js",
+    "dev": "cross-env NODE_ENV=developing npm run watch-node",
     "watch-node": "nodemon",
     "eslint": "eslint --fix './**/*.js'",
     "prettier": "prettier --write './**/*.js'"
@@ -45,6 +46,7 @@
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "handlebars": "^4.7.7",
+    "helmet": "^4.6.0",
     "joi": "^17.4.2",
     "jsonwebtoken": "^8.5.1",
     "mysql2": "^2.3.3-rc.0",
@@ -56,6 +58,7 @@
     "@babel/core": "^7.16.0",
     "@babel/node": "^7.16.0",
     "@babel/preset-env": "^7.16.0",
+    "cross-env": "^7.0.3",
     "eslint": "^8.2.0",
     "husky": "^7.0.4",
     "lint-staged": "^11.2.6",

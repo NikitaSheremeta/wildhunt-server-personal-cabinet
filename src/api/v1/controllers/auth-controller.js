@@ -4,8 +4,9 @@ const statusCodesUtils = require('../utils/status-codes-utils');
 const cookieConfig = {
   // eslint-disable-next-line no-magic-numbers
   maxAge: 30 * 24 * 60 * 60 * 1000,
-  httpOnly: true
-  // secure: true
+  sameSite: 'strict',
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production'
 };
 
 class AuthController {
