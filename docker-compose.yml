@@ -1,0 +1,34 @@
+version:  '3.0'
+
+services:
+  main:
+    container_name: main
+    build:
+      context: .
+    env_file:
+      - production.env
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - '5000:5000'
+    command: npm run dev
+    depends_on:
+      - mysql
+    restart: always
+  mysql:
+    container_name: mysql
+    image: mysql:5.7.36
+    env_file:
+      - production.env
+    environment:
+      MYSQL_DATABASE: wildhunt
+      MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    volumes:
+      - /var/lib/mysql
+    restart: always

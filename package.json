@@ -6,7 +6,7 @@
   "scripts": {
     "prepare": "husky install",
     "start": "cross-env NODE_ENV=production node src/api/v1/index.js",
-    "dev": "cross-env NODE_ENV=developing npm run watch-node",
+    "dev": "cross-env NODE_ENV=development npm run watch-node",
     "watch-node": "nodemon",
     "eslint": "eslint --fix './**/*.js'",
     "prettier": "prettier --write './**/*.js'"
