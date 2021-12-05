@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
 const utils = require('../utils/utils');
+const technicalMessagesUtils = require('../utils/technical-messages-utils');
 const ApiError = require('../exceptions/api-error');
 
 class MailService {
@@ -24,12 +25,12 @@ class MailService {
       await this.transporter.sendMail({
         from: process.env.SMTP_USER,
         to,
-        subject: 'Активация учетной записи Minecraft Wild Hunt',
+        subject: technicalMessagesUtils.mailMessages.ACTIVATION_MAIL_SUBJECT,
         html: activationTemplate
       });
     } catch (err) {
       throw ApiError.badRequest(
-        'Ошибка при отпраке письма, возможно, почтовый ящик не существет :('
+        technicalMessagesUtils.mailMessages.ERROR_SENDING_EMAIL
       );
     }
   }
@@ -41,12 +42,12 @@ class MailService {
       await this.transporter.sendMail({
         from: process.env.SMTP_USER,
         to,
-        subject: 'Восстановление пароля учетной записи Minecraft Wild Hunt',
+        subject: technicalMessagesUtils.mailMessages.RESET_MAIL_SUBJECT,
         html: resetTemplate
       });
     } catch (err) {
       throw ApiError.badRequest(
-        'Ошибка при отпраке письма, возможно, почтовый ящик не существет :('
+        technicalMessagesUtils.mailMessages.ERROR_SENDING_EMAIL
       );
     }
   }
@@ -61,12 +62,12 @@ class MailService {
       await this.transporter.sendMail({
         from: process.env.SMTP_USER,
         to,
-        subject: 'Новый пароль для учетной записи Minecraft Wild Hunt',
+        subject: technicalMessagesUtils.mailMessages.NEW_PASSWORD_SUBJECT,
         html: newPasswordTemplate
       });
     } catch (err) {
       throw ApiError.badRequest(
-        'Ошибка при отпраке письма, возможно, почтовый ящик не существет :('
+        technicalMessagesUtils.mailMessages.ERROR_SENDING_EMAIL
       );
     }
   }

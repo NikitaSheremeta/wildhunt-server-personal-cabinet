@@ -1,4 +1,5 @@
 const statusCodesUtils = require('../utils/status-codes-utils');
+const technicalMessagesUtils = require('../utils/technical-messages-utils');
 
 module.exports = class ApiError extends Error {
   status;
@@ -21,14 +22,14 @@ module.exports = class ApiError extends Error {
   static unauthorizedError() {
     return new ApiError(
       statusCodesUtils.httpStatus.UNAUTHORIZED.code,
-      'Пользователь не авторизован'
+      technicalMessagesUtils.apiErrorMessages.UNAUTHORIZED
     );
   }
 
   static forbiddenError() {
     return new ApiError(
-      statusCodesUtils.httpStatus.UNAUTHORIZED.code,
-      'Пользователю отказано в доступе к запрашиваемому ресурсу'
+      statusCodesUtils.httpStatus.FORBIDDEN.code,
+      technicalMessagesUtils.apiErrorMessages.FORBIDDEN
     );
   }
 };

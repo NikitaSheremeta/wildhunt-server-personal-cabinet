@@ -1,4 +1,5 @@
 const userData = require('../../../infrastructure/data/user-data');
+const technicalMessagesUtils = require('../utils/technical-messages-utils');
 const tokenData = require('../../../infrastructure/data/token-data');
 const ApiError = require('../exceptions/api-error');
 const bcrypt = require('bcrypt');
@@ -17,13 +18,13 @@ class AuthService {
 
     if (userName) {
       throw ApiError.badRequest(
-        'Пользователь с таким никнеймом уже зарегистрирован x_x'
+        technicalMessagesUtils.authMessages.NICKNAME_IS_ALREADY_REGISTERED
       );
     }
 
     if (userEmail) {
       throw ApiError.badRequest(
-        'Пользователь с таким почтовым адресом уже зарегистрирован >_<'
+        technicalMessagesUtils.authMessages.EMAIL_IS_ALREADY_REGISTERED
       );
     }
 
@@ -60,19 +61,25 @@ class AuthService {
     }
 
     if (!user) {
-      throw ApiError.badRequest('Пользователь не найден :/');
+      throw ApiError.badRequest(
+        technicalMessagesUtils.authMessages.USER_IS_NOT_FOUND
+      );
     }
 
     const isPassEquals = await bcrypt.compare(password, user.password);
 
     if (!isPassEquals) {
-      throw ApiError.badRequest('Неверный лоин или пароль T_T');
+      throw ApiError.badRequest(
+        technicalMessagesUtils.authMessages.WRONG_LOGIN_OR_PASSWORD
+      );
     }
 
     const roles = await userData.getUserRoles(user.id);
 
     if (!roles) {
-      throw ApiError.badRequest('Роли не обнаружены х_X');
+      throw ApiError.badRequest(
+        technicalMessagesUtils.authMessages.ROLES_NOT_FOUND
+      );
     }
 
     return await tokenService.generateAndSaveRefreshTokens({
@@ -90,7 +97,9 @@ class AuthService {
     const user = await userData.getUserByActivationLink(activationLink);
 
     if (!user) {
-      throw ApiError.badRequest('Ссылка Недействительна o_O');
+      throw ApiError.badRequest(
+        technicalMessagesUtils.authMessages.INVALID_LINK
+      );
     }
 
     if (user.is_activation_status !== 0) {
@@ -105,7 +114,7 @@ class AuthService {
 
     if (!user) {
       throw ApiError.badRequest(
-        'Пользователь с таким почтовым адресом не найден -_-'
+        technicalMessagesUtils.authMessages.EMAIL_ADDRESS_NOT_FOUND
       );
     }
 
@@ -120,7 +129,7 @@ class AuthService {
 
     return {
       message:
-        'Инструкция по восстановлению пароля - отправлена на ваш почтовый ящик'
+        technicalMessagesUtils.authMessages.PASSWORD_RECOVERY_INSTRUCTIONS
     };
   }
 
@@ -128,13 +137,17 @@ class AuthService {
     const mailToken = tokenService.validateResetToken(resetToken);
 
     if (!mailToken) {
-      throw ApiError.badRequest('Срок действия ссылки истек x_X');
+      throw ApiError.badRequest(
+        technicalMessagesUtils.authMessages.LINK_EXPIRED
+      );
     }
 
     const user = await userData.getUserById(mailToken.id);
 
     if (!user) {
-      throw ApiError.badRequest('Пользователь не найден...');
+      throw ApiError.badRequest(
+        technicalMessagesUtils.authMessages.USER_NOT_FOUND
+      );
     }
 
     const newPassword = utils.generatePassword();
@@ -161,13 +174,17 @@ class AuthService {
     const user = await userData.getUserById(dbToken.user_id);
 
     if (!user) {
-      throw ApiError.badRequest('Пользователь не найден :/');
+      throw ApiError.badRequest(
+        technicalMessagesUtils.authMessages.USER_NOT_FOUND
+      );
     }
 
     const roles = await userData.getUserRoles(dbToken.user_id);
 
     if (!roles) {
-      throw ApiError.badRequest('Роли не обнаружены х_X');
+      throw ApiError.badRequest(
+        technicalMessagesUtils.authMessages.ROLES_NOT_FOUND
+      );
     }
 
     return await tokenService.generateAndSaveRefreshTokens({

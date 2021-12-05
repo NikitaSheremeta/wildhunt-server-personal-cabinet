@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const tokenData = require('../../../infrastructure/data/token-data');
 const dateUtils = require('../utils/date-utils');
+const technicalMessagesUtils = require('../utils/technical-messages-utils');
 const ApiError = require('../exceptions/api-error');
 
 class TokenService {
@@ -74,7 +75,9 @@ class TokenService {
       );
 
       if (isDifference) {
-        throw ApiError.badRequest('Повторите попытку позже');
+        throw ApiError.badRequest(
+          technicalMessagesUtils.tokenMessages.TRY_AGAIN_LATER
+        );
       }
 
       return await tokenData.updateResetToken(userId, resetToken);
