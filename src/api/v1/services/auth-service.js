@@ -90,6 +90,12 @@ class AuthService {
   }
 
   async userLogout(refreshToken) {
+    if (!refreshToken) {
+      throw ApiError.badRequest(
+        technicalMessagesUtils.authMessages.LOGOUT_ERROR
+      );
+    }
+
     await tokenData.deleteRefreshToken(refreshToken);
   }
 
