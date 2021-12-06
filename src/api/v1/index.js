@@ -20,9 +20,9 @@ app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors());
-app.use(errorMiddleware);
 app.use('/api/v1', routes);
 app.use('/static', express.static(__dirname + '/templates/assets/img'));
+app.use(errorMiddleware);
 
 const start = async function startServer() {
   if (cluster.isMaster) {

@@ -22,7 +22,6 @@ class DateUtils {
   getDifferenceInTime(date, time) {
     const currentDate = Math.round(Date.now() / magicNumbers.oneSecond);
 
-    // TODO: remove after Docker setup
     const timeOffset =
       Math.abs(new Date().getTimezoneOffset()) * magicNumbers.oneMinute;
 

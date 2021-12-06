@@ -3,33 +3,45 @@ version:  '3.0'
 services:
   main:
     container_name: main
+    ports:
+      - '5000:5000'
     build:
       context: .
     env_file:
-      - production.env
+      - .env
     volumes:
       - .:/app
       - /app/node_modules
-    ports:
-      - '5000:5000'
     command: npm run dev
     depends_on:
       - mysql
     restart: always
+
   mysql:
     container_name: mysql
     image: mysql:5.7.36
-    env_file:
-      - production.env
-    environment:
-      MYSQL_DATABASE: wildhunt-personal-cabinet
-      MYSQL_PASSWORD: root
-      MYSQL_ROOT_PASSWORD: root
     ports:
       - '3306:3306'
+    env_file:
+      - .env
+    environment:
+      MYSQL_DATABASE: wildhunt-personal-cabinet
+      MYSQL_ROOT_PASSWORD: 'ItG%oSnAA4oN0oD@7aaB7av'
+      TZ: Europe/Moscow
     expose:
       - '3306'
     volumes:
       - /var/lib/mysql
       - ./dump.sql:/docker-entrypoint-initdb.d
+    restart: always
+
+  phpmyadmin:
+    container_name: phpmyadmin
+    image: phpmyadmin
+    ports:
+      - '8080:80'
+    environment:
+      - PMA_HOST=mysql
+    depends_on:
+      - mysql
     restart: always
