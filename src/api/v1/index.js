@@ -1,3 +1,4 @@
+require('newrelic');
 const dotenv = require('dotenv');
 const express = require('express');
 const cluster = require('cluster');
