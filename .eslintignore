@@ -10,6 +10,7 @@ typings/
 
 # Optional eslint cache
 .eslintcache
+.eslintrc.js
 
 # Optional REPL history
 .node_repl_history
@@ -32,3 +33,7 @@ build
 build/*
 # Nuxt generate
 dist
+
+# HTML templates
+src/api/v1/templates/*.html
+

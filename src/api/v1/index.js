@@ -1,27 +1,30 @@
 const dotenv = require('dotenv');
 const express = require('express');
-const mysql = require('mysql');
 const cluster = require('cluster');
 const os = require('os');
-const routes = require('./routes/index');
+const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
+const cors = require('cors');
+const routes = require('./routes');
+const errorMiddleware = require('./middlewares/error-middleware');
 
 dotenv.config();
 
 const app = express();
 
-const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'root',
-  database: 'minecraft'
-});
-
-const serverPort = process.env.SERVER_PORT;
+const port = 5000;
+const serverPort = process.env.SERVER_PORT || port;
 const oneCpu = 1;
 
-const start = function startServer() {
-  app.use('/', routes);
+app.use(helmet());
+app.use(express.json());
+app.use(cookieParser());
+app.use(cors());
+app.use(errorMiddleware);
+app.use('/api/v1', routes);
+app.use('/static', express.static(__dirname + '/templates/assets/img'));
 
+const start = async function startServer() {
   if (cluster.isMaster) {
     const cpusCount = os.cpus().length;
 
@@ -35,10 +38,6 @@ const start = function startServer() {
       });
     }
   } else {
-    db.connect((err) =>
-      err ? console.error(err.message) : console.log('MySQL connected...')
-    );
-
     app.listen(serverPort, () =>
       console.log(`Server started on port: ${serverPort}, Pid: ${process.pid}`)
     );

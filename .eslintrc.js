@@ -6,7 +6,7 @@ module.exports = {
   },
   extends: 'eslint:recommended',
   parserOptions: {
-    ecmaVersion: 13,
+    ecmaVersion: 13
   },
   rules: {
     indent: [
@@ -37,7 +37,7 @@ module.exports = {
         ignoreArrayIndexes: true,
         enforceConst: true,
         detectObjects: false,
-        ignore: [0]
+        ignore: [-1, 0, 1]
       }
     ],
     'no-unused-vars': [
