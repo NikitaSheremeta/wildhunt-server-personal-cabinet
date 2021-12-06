@@ -22,7 +22,7 @@ services:
     env_file:
       - production.env
     environment:
-      MYSQL_DATABASE: wildhunt
+      MYSQL_DATABASE: wildhunt-personal-cabinet
       MYSQL_PASSWORD: root
       MYSQL_ROOT_PASSWORD: root
     ports:
@@ -31,4 +31,5 @@ services:
       - '3306'
     volumes:
       - /var/lib/mysql
+      - ./dump.sql:/docker-entrypoint-initdb.d
     restart: always
