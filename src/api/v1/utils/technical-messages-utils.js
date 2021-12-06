@@ -21,7 +21,8 @@ class TechnicalMessagesUtils {
       PASSWORD_RECOVERY_INSTRUCTIONS:
         'Инструкция по восстановлению пароля - отправлена на ваш почтовый ящик ^_^',
       LINK_EXPIRED: 'Срок действия ссылки истек x_o',
-      USER_NOT_FOUND: 'Пользователь не найден o_()'
+      USER_NOT_FOUND: 'Пользователь не найден o_()',
+      LOGOUT_ERROR: 'Ошибка при выходе из учестной записи 0_0'
     };
   }
 
