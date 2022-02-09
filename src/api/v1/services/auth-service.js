@@ -1,6 +1,7 @@
 const userData = require('../../../infrastructure/data/user-data');
 const technicalMessagesUtils = require('../utils/technical-messages-utils');
 const tokenData = require('../../../infrastructure/data/token-data');
+const ErrorDTO = require('../dtos/error-dto');
 const ApiError = require('../exceptions/api-error');
 const bcrypt = require('bcrypt');
 const tokenService = require('./token-service');
@@ -12,18 +13,18 @@ const utils = require('../utils/utils');
 const salt = 10;
 
 class AuthService {
-  async userRegistration(userInputData) {
-    const userName = await userData.getUserByName(userInputData.userName);
-    const userEmail = await userData.getUserByEmail(userInputData.email);
+  async userSignup(userInputData) {
+    const username = await userData.getUserByName(userInputData.username);
+    const email = await userData.getUserByEmail(userInputData.email);
 
-    if (userName) {
-      throw ApiError.badRequest(
+    if (username) {
+      return new ErrorDTO(
         technicalMessagesUtils.authMessages.NICKNAME_IS_ALREADY_REGISTERED
       );
     }
 
-    if (userEmail) {
-      throw ApiError.badRequest(
+    if (email) {
+      return new ErrorDTO(
         technicalMessagesUtils.authMessages.EMAIL_IS_ALREADY_REGISTERED
       );
     }
@@ -46,7 +47,7 @@ class AuthService {
 
     return await tokenService.generateAndSaveRefreshTokens({
       id: user.insertId,
-      userName: userInputData.userName,
+      username: userInputData.username,
       roles: [guardUtils.siteRoles.USER]
     });
   }
@@ -61,7 +62,7 @@ class AuthService {
     }
 
     if (!user) {
-      throw ApiError.badRequest(
+      return new ErrorDTO(
         technicalMessagesUtils.authMessages.USER_IS_NOT_FOUND
       );
     }
@@ -69,7 +70,7 @@ class AuthService {
     const isPassEquals = await bcrypt.compare(password, user.password);
 
     if (!isPassEquals) {
-      throw ApiError.badRequest(
+      return new ErrorDTO(
         technicalMessagesUtils.authMessages.WRONG_LOGIN_OR_PASSWORD
       );
     }
@@ -77,23 +78,19 @@ class AuthService {
     const roles = await userData.getUserRoles(user.id);
 
     if (!roles) {
-      throw ApiError.badRequest(
-        technicalMessagesUtils.authMessages.ROLES_NOT_FOUND
-      );
+      return new ErrorDTO(technicalMessagesUtils.authMessages.ROLES_NOT_FOUND);
     }
 
     return await tokenService.generateAndSaveRefreshTokens({
       id: user.id,
-      userName: user.user_name,
+      username: user.user_name,
       roles: roles.map((role) => role.identifier)
     });
   }
 
   async userLogout(refreshToken) {
     if (!refreshToken) {
-      throw ApiError.badRequest(
-        technicalMessagesUtils.authMessages.LOGOUT_ERROR
-      );
+      return new ErrorDTO(technicalMessagesUtils.authMessages.LOGOUT_ERROR);
     }
 
     await tokenData.deleteRefreshToken(refreshToken);
@@ -103,9 +100,7 @@ class AuthService {
     const user = await userData.getUserByActivationLink(activationLink);
 
     if (!user) {
-      throw ApiError.badRequest(
-        technicalMessagesUtils.authMessages.INVALID_LINK
-      );
+      return new ErrorDTO(technicalMessagesUtils.authMessages.INVALID_LINK);
     }
 
     if (user.is_activation_status !== 0) {
@@ -119,7 +114,7 @@ class AuthService {
     const user = await userData.getUserByEmail(email);
 
     if (!user) {
-      throw ApiError.badRequest(
+      return new ErrorDTO(
         technicalMessagesUtils.authMessages.EMAIL_ADDRESS_NOT_FOUND
       );
     }
@@ -143,17 +138,21 @@ class AuthService {
     const mailToken = tokenService.validateResetToken(resetToken);
 
     if (!mailToken) {
-      throw ApiError.badRequest(
-        technicalMessagesUtils.authMessages.LINK_EXPIRED
-      );
+      return {
+        error: {
+          message: technicalMessagesUtils.authMessages.LINK_EXPIRED
+        }
+      };
     }
 
     const user = await userData.getUserById(mailToken.id);
 
     if (!user) {
-      throw ApiError.badRequest(
-        technicalMessagesUtils.authMessages.USER_NOT_FOUND
-      );
+      return {
+        error: {
+          message: technicalMessagesUtils.authMessages.USER_NOT_FOUND
+        }
+      };
     }
 
     const newPassword = utils.generatePassword();
@@ -180,22 +179,26 @@ class AuthService {
     const user = await userData.getUserById(dbToken.user_id);
 
     if (!user) {
-      throw ApiError.badRequest(
-        technicalMessagesUtils.authMessages.USER_NOT_FOUND
-      );
+      return {
+        error: {
+          message: technicalMessagesUtils.authMessages.USER_NOT_FOUND
+        }
+      };
     }
 
     const roles = await userData.getUserRoles(dbToken.user_id);
 
     if (!roles) {
-      throw ApiError.badRequest(
-        technicalMessagesUtils.authMessages.ROLES_NOT_FOUND
-      );
+      return {
+        error: {
+          message: technicalMessagesUtils.authMessages.ROLES_NOT_FOUND
+        }
+      };
     }
 
     return await tokenService.generateAndSaveRefreshTokens({
       id: user.id,
-      userName: user.user_name,
+      username: user.user_name,
       roles: roles.map((role) => role.identifier)
     });
   }

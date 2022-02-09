@@ -13,10 +13,10 @@ class UserData {
     return user.length > 0 ? user[0] : false;
   }
 
-  async getUserByName(userName) {
+  async getUserByName(username) {
     const [user] = await connection.execute(
       'SELECT * FROM users WHERE user_name = ?',
-      [userName],
+      [username],
       (err) => console.error(err)
     );
 
@@ -75,13 +75,8 @@ class UserData {
 
   async createUser(userData) {
     const [user] = await connection.execute(
-      'INSERT INTO users (user_name, email, birth_date, password) VALUES (?, ?, ?, ?)',
-      [
-        userData.userName,
-        userData.email,
-        userData.birthDate,
-        userData.password
-      ],
+      'INSERT INTO users (user_name, email, password) VALUES (?, ?, ?)',
+      [userData.username, userData.email, userData.password],
       (err) => console.error(err)
     );
 

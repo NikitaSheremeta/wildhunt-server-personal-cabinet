@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer');
 const utils = require('../utils/utils');
 const technicalMessagesUtils = require('../utils/technical-messages-utils');
-const ApiError = require('../exceptions/api-error');
+const ErrorDTO = require('../dtos/error-dto');
 
 class MailService {
   constructor() {
@@ -29,7 +29,7 @@ class MailService {
         html: activationTemplate
       });
     } catch (err) {
-      throw ApiError.badRequest(
+      return new ErrorDTO(
         technicalMessagesUtils.mailMessages.ERROR_SENDING_EMAIL
       );
     }
@@ -46,7 +46,7 @@ class MailService {
         html: resetTemplate
       });
     } catch (err) {
-      throw ApiError.badRequest(
+      return new ErrorDTO(
         technicalMessagesUtils.mailMessages.ERROR_SENDING_EMAIL
       );
     }
@@ -66,7 +66,7 @@ class MailService {
         html: newPasswordTemplate
       });
     } catch (err) {
-      throw ApiError.badRequest(
+      return new ErrorDTO(
         technicalMessagesUtils.mailMessages.ERROR_SENDING_EMAIL
       );
     }

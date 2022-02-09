@@ -10,9 +10,9 @@ const cookieConfig = {
 };
 
 class AuthController {
-  async registration(req, res, next) {
+  async signup(req, res, next) {
     try {
-      const userData = await authService.userRegistration(req.body);
+      const userData = await authService.userSignup(req.body);
 
       res.cookie('refreshToken', userData.refreshToken, cookieConfig);
 
@@ -54,7 +54,7 @@ class AuthController {
     try {
       await authService.userActivation(req.params.link);
 
-      return res.redirect(process.env.API_URL);
+      return res.redirect(process.env.CLIENT_URL);
     } catch (err) {
       next(err);
     }
@@ -74,7 +74,7 @@ class AuthController {
     try {
       await authService.userResetPassword(req.params.token);
 
-      return res.redirect(process.env.API_URL);
+      return res.redirect(process.env.CLIENT_URL);
     } catch (err) {
       next(err);
     }

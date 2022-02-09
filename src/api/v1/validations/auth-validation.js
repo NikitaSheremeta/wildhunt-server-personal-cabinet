@@ -2,12 +2,12 @@ const Joi = require('joi');
 const ApiError = require('../exceptions/api-error');
 
 const magicNumbers = {
-  userName: {
-    minLength: 4,
+  username: {
+    minLength: 2,
     maxLength: 24
   },
   password: {
-    minLength: 8,
+    minLength: 4,
     maxLength: 24
   }
 };
@@ -19,16 +19,15 @@ module.exports = function () {
     let schema;
 
     switch (route) {
-      case 'registration':
+      case 'signup':
         schema = Joi.object().keys({
-          userName: Joi.string()
-            .min(magicNumbers.userName.minLength)
-            .max(magicNumbers.userName.maxLength)
+          username: Joi.string()
+            .min(magicNumbers.username.minLength)
+            .max(magicNumbers.username.maxLength)
             .required(),
           email: Joi.string()
             .email({ tlds: { allow: false } })
             .required(),
-          birthDate: Joi.date().required(),
           password: Joi.string()
             .alphanum()
             .min(magicNumbers.password.minLength)
