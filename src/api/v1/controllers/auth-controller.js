@@ -14,7 +14,7 @@ class AuthController {
     try {
       const userData = await authService.userSignup(req.body);
 
-      res.cookie('refreshToken', userData.refreshToken, cookieConfig);
+      res.cookie('refreshToken', userData.data.refreshToken, cookieConfig);
 
       return res.json(userData);
     } catch (err) {
@@ -28,7 +28,7 @@ class AuthController {
 
       const userData = await authService.userLogin(login, password);
 
-      res.cookie('refreshToken', userData.refreshToken, cookieConfig);
+      res.cookie('refreshToken', userData.data.refreshToken, cookieConfig);
 
       return res.json(userData);
     } catch (err) {
@@ -86,7 +86,7 @@ class AuthController {
 
       const userData = await authService.userRefreshToken(refreshToken);
 
-      res.cookie('refreshToken', userData.refreshToken, cookieConfig);
+      res.cookie('refreshToken', userData.data.refreshToken, cookieConfig);
 
       return res.json(userData);
     } catch (err) {
