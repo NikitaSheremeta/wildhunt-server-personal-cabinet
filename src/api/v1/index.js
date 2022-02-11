@@ -30,7 +30,7 @@ app.use('/api/v1', routes);
 app.use('/static', express.static(__dirname + '/templates/assets/img'));
 app.use(errorMiddleware);
 
-const start = async function startServer() {
+async function startServer() {
   if (cluster.isMaster) {
     const cpusCount = os.cpus().length;
 
@@ -48,6 +48,6 @@ const start = async function startServer() {
       console.log(`Server started on port: ${serverPort}, Pid: ${process.pid}`)
     );
   }
-};
+}
 
-start();
+startServer();

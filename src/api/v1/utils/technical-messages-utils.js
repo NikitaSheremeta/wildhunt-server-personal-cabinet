@@ -18,8 +18,6 @@ class TechnicalMessagesUtils {
       INVALID_LINK: 'Ссылка Недействительна o_()',
       EMAIL_ADDRESS_NOT_FOUND:
         'Пользователь с таким почтовым адресом не найден -_-',
-      PASSWORD_RECOVERY_INSTRUCTIONS:
-        'Инструкция по восстановлению пароля - отправлена на ваш почтовый ящик ^_^',
       LINK_EXPIRED: 'Срок действия ссылки истек x_o',
       USER_NOT_FOUND: 'Пользователь не найден o_()',
       LOGOUT_ERROR: 'Ошибка при выходе из учестной записи 0_0'

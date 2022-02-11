@@ -1,7 +1,7 @@
 const userData = require('../../../infrastructure/data/user-data');
 const technicalMessagesUtils = require('../utils/technical-messages-utils');
 const tokenData = require('../../../infrastructure/data/token-data');
-const ErrorDTO = require('../dtos/error-dto');
+const apiResponse = require('../dtos/api-response');
 const ApiError = require('../exceptions/api-error');
 const bcrypt = require('bcrypt');
 const tokenService = require('./token-service');
@@ -18,15 +18,16 @@ class AuthService {
     const email = await userData.getUserByEmail(userInputData.email);
 
     if (username) {
-      return new ErrorDTO(
-        technicalMessagesUtils.authMessages.NICKNAME_IS_ALREADY_REGISTERED
-      );
+      return apiResponse.errorResponse({
+        message:
+          technicalMessagesUtils.authMessages.NICKNAME_IS_ALREADY_REGISTERED
+      });
     }
 
     if (email) {
-      return new ErrorDTO(
-        technicalMessagesUtils.authMessages.EMAIL_IS_ALREADY_REGISTERED
-      );
+      return apiResponse.errorResponse({
+        message: technicalMessagesUtils.authMessages.EMAIL_IS_ALREADY_REGISTERED
+      });
     }
 
     const activationLink = uuid.v4();
@@ -45,11 +46,13 @@ class AuthService {
 
     await userData.createUserActivationLink(user.insertId, activationLink);
 
-    return await tokenService.generateAndSaveRefreshTokens({
+    const tokens = await tokenService.generateAndSaveRefreshTokens({
       id: user.insertId,
       username: userInputData.username,
       roles: [guardUtils.siteRoles.USER]
     });
+
+    return apiResponse.successResponse(tokens);
   }
 
   async userLogin(login, password) {
@@ -62,45 +65,55 @@ class AuthService {
     }
 
     if (!user) {
-      return new ErrorDTO(
-        technicalMessagesUtils.authMessages.USER_IS_NOT_FOUND
-      );
+      return apiResponse.errorResponse({
+        message: technicalMessagesUtils.authMessages.USER_IS_NOT_FOUND
+      });
     }
 
     const isPassEquals = await bcrypt.compare(password, user.password);
 
     if (!isPassEquals) {
-      return new ErrorDTO(
-        technicalMessagesUtils.authMessages.WRONG_LOGIN_OR_PASSWORD
-      );
+      return apiResponse.errorResponse({
+        message: technicalMessagesUtils.authMessages.WRONG_LOGIN_OR_PASSWORD
+      });
     }
 
     const roles = await userData.getUserRoles(user.id);
 
     if (!roles) {
-      return new ErrorDTO(technicalMessagesUtils.authMessages.ROLES_NOT_FOUND);
+      return apiResponse.errorResponse({
+        message: technicalMessagesUtils.authMessages.ROLES_NOT_FOUND
+      });
     }
 
-    return await tokenService.generateAndSaveRefreshTokens({
+    const tokens = await tokenService.generateAndSaveRefreshTokens({
       id: user.id,
       username: user.user_name,
       roles: roles.map((role) => role.identifier)
     });
+
+    return apiResponse.successResponse(tokens);
   }
 
   async userLogout(refreshToken) {
     if (!refreshToken) {
-      return new ErrorDTO(technicalMessagesUtils.authMessages.LOGOUT_ERROR);
+      return apiResponse.errorResponse({
+        message: technicalMessagesUtils.authMessages.LOGOUT_ERROR
+      });
     }
 
-    await tokenData.deleteRefreshToken(refreshToken);
+    const token = await tokenData.deleteRefreshToken(refreshToken);
+
+    return apiResponse.successResponse(token);
   }
 
   async userActivation(activationLink) {
     const user = await userData.getUserByActivationLink(activationLink);
 
     if (!user) {
-      return new ErrorDTO(technicalMessagesUtils.authMessages.INVALID_LINK);
+      return apiResponse.errorResponse({
+        message: technicalMessagesUtils.authMessages.INVALID_LINK
+      });
     }
 
     if (user.is_activation_status !== 0) {
@@ -114,9 +127,9 @@ class AuthService {
     const user = await userData.getUserByEmail(email);
 
     if (!user) {
-      return new ErrorDTO(
-        technicalMessagesUtils.authMessages.EMAIL_ADDRESS_NOT_FOUND
-      );
+      return apiResponse.errorResponse({
+        message: technicalMessagesUtils.authMessages.EMAIL_ADDRESS_NOT_FOUND
+      });
     }
 
     const resetToken = await tokenService.generateAndSaveResetToken({
@@ -128,31 +141,24 @@ class AuthService {
       `${process.env.API_URL}/api/v1/auth/reset/${resetToken}`
     );
 
-    return {
-      message:
-        technicalMessagesUtils.authMessages.PASSWORD_RECOVERY_INSTRUCTIONS
-    };
+    return apiResponse.successResponse();
   }
 
   async userResetPassword(resetToken) {
     const mailToken = tokenService.validateResetToken(resetToken);
 
     if (!mailToken) {
-      return {
-        error: {
-          message: technicalMessagesUtils.authMessages.LINK_EXPIRED
-        }
-      };
+      return apiResponse.errorResponse({
+        message: technicalMessagesUtils.authMessages.LINK_EXPIRED
+      });
     }
 
     const user = await userData.getUserById(mailToken.id);
 
     if (!user) {
-      return {
-        error: {
-          message: technicalMessagesUtils.authMessages.USER_NOT_FOUND
-        }
-      };
+      return apiResponse.errorResponse({
+        message: technicalMessagesUtils.authMessages.USER_NOT_FOUND
+      });
     }
 
     const newPassword = utils.generatePassword();
@@ -179,28 +185,26 @@ class AuthService {
     const user = await userData.getUserById(dbToken.user_id);
 
     if (!user) {
-      return {
-        error: {
-          message: technicalMessagesUtils.authMessages.USER_NOT_FOUND
-        }
-      };
+      return apiResponse.errorResponse({
+        message: technicalMessagesUtils.authMessages.USER_NOT_FOUND
+      });
     }
 
     const roles = await userData.getUserRoles(dbToken.user_id);
 
     if (!roles) {
-      return {
-        error: {
-          message: technicalMessagesUtils.authMessages.ROLES_NOT_FOUND
-        }
-      };
+      return apiResponse.errorResponse({
+        message: technicalMessagesUtils.authMessages.ROLES_NOT_FOUND
+      });
     }
 
-    return await tokenService.generateAndSaveRefreshTokens({
+    const tokens = await tokenService.generateAndSaveRefreshTokens({
       id: user.id,
       username: user.user_name,
       roles: roles.map((role) => role.identifier)
     });
+
+    return apiResponse.successResponse(tokens);
   }
 }
 
