@@ -4,9 +4,9 @@
   "description": "Back-end side",
   "main": "src/api/v1/index.js",
   "scripts": {
-    "prepare": "husky install",
-    "start": "cross-env NODE_ENV=production node src/api/v1/index.js",
-    "dev": "cross-env NODE_ENV=development npm run watch-node",
+    "serve": "cross-env NODE_ENV=development npm run watch-node",
+    "build": "rm -rf dist && webpack --mode production",
+    "start": "cross-env NODE_ENV=production node dist/index.js",
     "watch-node": "nodemon",
     "eslint": "eslint --fix './**/*.js'",
     "prettier": "prettier --write './**/*.js'"
@@ -28,16 +28,6 @@
     "not dead",
     "not op_mini all"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/NikitaSheremeta/minecraft.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/NikitaSheremeta/minecraft/issues"
-  },
-  "homepage": "https://github.com/NikitaSheremeta/minecraft#readme",
   "dependencies": {
     "@types/cors": "^2.8.12",
     "bcrypt": "^5.0.1",

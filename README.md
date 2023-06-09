@@ -1,22 +1,25 @@
-# Wildhunt web (server)
+# Wildhunt authorization service
 
-### Установка всех зависимостей
-
-```
-npm i
-```
-
-### Подготовка перед первым запуском
+### Project setup
 
 ```
-npm run prepare
+npm install
 ```
 
-В скрипте `prepare` имеется `husky install`, это установка не самой зависимости, а гит-хуков, 
-необходимо для корректной работы пре-коммита, иначе он просто не запустится.
-
-### Запуск сервера в dev-режиме
+### Compiles and hot-reloads for development
 
 ```
-npm run dev
+npm run serve
+```
+
+### Build app
+
+```
+npm run build
+```
+
+### Start the server in production mode
+
+```
+npm run start
 ```
